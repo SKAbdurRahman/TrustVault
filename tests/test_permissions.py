@@ -67,3 +67,12 @@ def test_deleted_document_and_unknown_action_denied():
         assert not can(db, owner, doc, "fly")
         doc.deleted_at = now(); db.commit()
         assert not can(db, owner, doc, "read")
+
+def test_deactivated_user_denied_even_as_owner():
+    with SessionLocal() as db:
+        owner = _user(db, "o")
+        doc = _doc(db, owner)
+        assert can(db, owner, doc, "read")
+        owner.is_active = False
+        db.commit()
+        assert not can(db, owner, doc, "read")
