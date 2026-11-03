@@ -6,7 +6,7 @@
 
 **What was wrong:** No test covered deactivated users. I commented out the is_active check and all 11 tests still passed.
 
-**What I did instead:** Added test_deactivated_user_denied_even_as_owner and confirmed it fails when the check is removed. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/7dcb24928263e8c102c09c2628830b9827a5946a
+**What I did instead:** Added test_deactivated_user_denied_even_as_owner and confirmed it fails when the check is removed. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/7dcb249
 
 
 ## Entry 2: 3 Nov 2026: no test for audited downloads
