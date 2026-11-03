@@ -118,3 +118,28 @@ def download(doc_id: int, user: User = Depends(get_current_user), db: Session = 
     audit.log(db, user.id, "download", doc.id)  # logged BEFORE the bytes leave the server
     return FileResponse(path, media_type=doc.content_type, filename=doc.original_name,
                         headers={"X-Content-Type-Options": "nosniff"})
+
+@router.patch("/{doc_id}")
+def edit_document(doc_id: int, title: Optional[str] = Form(None, max_length=200),
+                  category: Optional[str] = Form(None, max_length=50),
+                  user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    doc = require(db, user, doc_id, "edit")
+    changes = []
+    if title is not None and title.strip():
+        doc.title = title.strip()
+        changes.append("title")
+    if category is not None and category.strip():
+        doc.category = category.strip()
+        changes.append("category")
+    db.commit()
+    audit.log(db, user.id, "edit", doc.id, details=",".join(changes) or "no change")
+    return _doc_out(doc)
+
+
+@router.delete("/{doc_id}")
+def delete_document(doc_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    doc = require(db, user, doc_id, "delete")  # owner only
+    doc.deleted_at = now()  # soft delete: the file and the audit trail stay
+    db.commit()
+    audit.log(db, user.id, "delete", doc.id)
+    return {"status": "deleted"}
