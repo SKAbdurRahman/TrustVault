@@ -53,3 +53,7 @@ def get_current_user(
     if user is None or not user.is_active:
         raise HTTPException(status_code=401, detail="Not authenticated")
     return user
+
+def end_session(db: Session, token: str) -> None:
+    db.query(LoginSession).filter_by(token_hash=_hash_token(token)).delete()
+    db.commit()
