@@ -69,11 +69,53 @@ Each entry: the attack, what I did about it, how it is tested, and its status.
 **Test:** `test_logout_revokes_token_immediately`.
 **Status:** Fixed.
 
-## Still to cover (upload and download routes are not built yet)
+## T12: Download route uses the wrong permission name
+**What I found:** Changing "download" to "read" in the download route did not fail any test.
+**Status:** Open (low risk today). Read and download are always granted together. Becomes real if I add a read-only-no-download permission.
+
+## T13: Fake file type or oversized upload
+**Attack:** Upload a program renamed to .pdf, or a huge file to exhaust memory.
+**What I did:** The type is decided from the file's first bytes, not its name or the browser's claim. Reads stop at the 5 MB limit plus one byte.
+**Test:** `test_fake_extension_rejected`, `test_oversized_file_rejected`.
+**Status:** Fixed for the allowed types. Plain text accepts any UTF-8 content, which is a known limit.
+
+## T14: Path traversal in file names
+**Attack:** A name like ../../etc/passwd to write or read outside the storage folder.
+**What I did:** Files are stored under a random name. The user's file name is only used for display, with path parts stripped.
+**Test:** `test_path_traversal_name_is_harmless`.
+**Status:** Fixed.
+
+## T15: Search leaking other users' documents
+**Attack:** Searching for words to discover titles of documents the user cannot open.
+**What I did:** The list and search query only ever selects documents the user owns or holds a valid grant for.
+**Test:** `test_search_and_list_never_show_other_users_documents`.
+**Evidence:** I removed the owner/granted filter and the test failed.
+**Status:** Fixed.
+
+## T16: Successful downloads not logged
+**Attack/risk:** A file leaves the server and nothing records who took it.
+**What I did:** The download route logs before sending the file.
+**Test:** `test_successful_download_is_audited`.
+**Evidence:** I deleted the audit call and all 21 original tests still passed, so I added this test and confirmed it fails without the call.
+**Status:** Fixed.
+
+## Still to cover (grants, revoke and delete routes are not built yet)
 These are on my list and I will write full entries once the code exists:
-- Malicious or oversized uploads, and files whose extension lies about their content
-- Path traversal in file names
-- Guessable file names or direct access to the storage folder
-- Search results leaking titles of documents the user cannot open
 - A viewer calling owner-only routes (grant, revoke, delete)
 - Granting yourself access, or granting beyond what you were given
+- Uploaded text files shown in the browser (HTML or script in a .txt)
+- Rebuilding the "who can read" rule by hand in the list route instead of calling can()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
