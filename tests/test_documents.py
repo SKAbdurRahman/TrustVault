@@ -81,3 +81,13 @@ def test_path_traversal_name_is_harmless(client):
     r = upload(client, a, name="../../etc/passwd.pdf")
     assert r.status_code == 201
     assert "/" not in r.json()["original_name"] and ".." not in r.json()["original_name"].split("passwd")[0]
+
+def test_successful_download_is_audited(client):
+    from app.db import SessionLocal
+    from app.models import AuditLog
+    a, _ = setup_two_users(client)
+    doc_id = upload(client, a).json()["id"]
+    client.get(f"/documents/{doc_id}/download", headers=a)
+    with SessionLocal() as db:
+        n = db.query(AuditLog).filter_by(action="download", result="allowed", document_id=doc_id).count()
+        assert n == 1
