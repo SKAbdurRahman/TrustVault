@@ -89,3 +89,11 @@ def test_expired_grant_does_not_work(client):
         row.expires_at = now() - timedelta(seconds=1)
         db.commit()
     assert client.get(f"/documents/{doc_id}/download", headers=b).status_code == 404
+
+def test_regrant_replaces_old_permission(client):
+    a, b, _ = three_users(client)
+    doc_id = upload(client, a).json()["id"]
+    grant(client, a, doc_id, "bob", "edit")
+    grant(client, a, doc_id, "bob", "read")  # downgrade
+    assert client.patch(f"/documents/{doc_id}", headers=b, data={"title": "x"}).status_code == 404
+    assert client.get(f"/documents/{doc_id}/download", headers=b).status_code == 200
