@@ -19,6 +19,7 @@
 
 **What I did instead:** Added `test_successful_download_is_audited` and confirmed it fails when the audit call is removed. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/ad800ab
 
+
 ## Entry 3: 3 Nov 2026: download route used the wrong permission name
 
 **Asked:** AI to write the download route.
@@ -28,3 +29,16 @@
 **What was wrong:** I changed "download" to "read" in that call and all 21 tests still passed, so no test checks which permission the route asks for. Low risk today because read and download are always granted together.
 
 **What I did instead:** Recorded it as an open item (T12 in THREATS.md) instead of pretending it was covered. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/0461afb
+
+## Entry 4: 3 Nov 2026: downgrading a grant left the old permission active
+
+**Asked:** AI to write grant and revoke routes with two-user tests.
+
+**It produced:** A grant route that replaces earlier active grants, and tests for grant, revoke and viewer refusals.
+
+**What was wrong:** No test covered downgrading. I removed the loop that revokes the earlier grant and all 29 tests still passed, so a user downgraded from edit to read would have kept edit access.
+
+**What I did instead:** Added test_regrant_replaces_old_permission and confirmed it fails without the loop. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/f002cb7
+
+
+
