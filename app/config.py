@@ -2,7 +2,9 @@ import os
 
 _url = os.getenv("DATABASE_URL", "sqlite:///./trustvault.db")
 if _url.startswith("postgres://"):
-    _url = _url.replace("postgres://", "postgresql://", 1)
+    _url = _url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif _url.startswith("postgresql://"):
+    _url = _url.replace("postgresql://", "postgresql+psycopg2://", 1)
 DATABASE_URL = _url
 STORAGE_DIR = os.getenv("STORAGE_DIR", "storage")
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_BYTES", 5 * 1024 * 1024))
