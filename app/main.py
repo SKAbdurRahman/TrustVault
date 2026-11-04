@@ -13,3 +13,10 @@ app.include_router(grants.router)
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+from fastapi.responses import RedirectResponse
+
+
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/docs")
