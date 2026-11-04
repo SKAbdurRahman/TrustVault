@@ -107,3 +107,13 @@ def test_verify_endpoint_detects_tampering(client):
         row_id = row.id
     body = client.get("/admin/audit/verify", headers=admin).json()
     assert body["intact"] is False and body["first_bad_row_id"] == row_id
+
+def test_deactivation_deletes_session_rows(client):
+    from app.models import LoginSession
+    register(client, "bob")
+    bob = login_headers(client, "bob")
+    admin = make_admin(client)
+    bob_id = client.get("/auth/me", headers=bob).json()["id"]
+    client.post(f"/admin/users/{bob_id}/deactivate", headers=admin)
+    with SessionLocal() as db:
+        assert db.query(LoginSession).filter_by(user_id=bob_id).count() == 0
