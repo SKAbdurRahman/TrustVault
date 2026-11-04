@@ -40,3 +40,4 @@ How to log in: open `/docs`, call `POST /auth/login`, copy the `access_token`, c
 - `PROMPTS.md`: where the AI was wrong and what I did about it
 - `sql/schema.sql`: database schema and audit-log triggers
 - API reference: the live `/docs` page lists every endpoint
+- A locked account unlocks after 15 minutes
