@@ -142,7 +142,6 @@ Owner saw both demo documents. Viewer saw only the shared one; downloading it re
 
 ## Still to cover (not yet built or tested)
 - Admin account creation is only through the seed script and the promote-role route; there is no self-service path
-- Login rate limiting (also listed in T8)
 - Audit-log writes from two requests at the same moment (T7)
 - Verifying the audit triggers against the live Postgres (T6)
 - Uploaded text files shown in the browser (HTML or script in a .txt); downloads are forced as attachments with `nosniff`, but plain text accepts any UTF-8 content
