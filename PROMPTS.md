@@ -50,3 +50,13 @@
 **What was wrong:** SQLAlchemy 2 defaults to the `psycopg` (v3) driver for `postgresql://` URLs, so the deploy crashed with `ModuleNotFoundError: No module named 'psycopg'`.
 
 **What I did instead:** Read the Render log, found the missing module, and made the config use `postgresql+psycopg2://` explicitly. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/50057ea
+
+## Entry 6: 4 Nov 2026: deactivation cleanup was untested
+
+**Asked:** AI to write admin routes with a deactivate-user route that ends the user's sessions, plus tests.
+
+**It produced:** A deactivate route that sets `is_active` to False and deletes the user's session rows, and a test that the old token fails on the next request.
+
+**What was wrong:** I removed the session-delete line and all 39 tests still passed. The old token was still refused because `get_current_user` checks `is_active`, so access was safe, but nothing tested that the session rows were removed.
+
+**What I did instead:** Added test_deactivation_deletes_session_rows and confirmed it fails without the delete call. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/f5fd065
