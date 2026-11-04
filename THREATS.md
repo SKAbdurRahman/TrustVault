@@ -38,9 +38,16 @@ Each entry: the attack, what I did about it, how it is tested, and its status.
 
 ## T6: Tampering with the audit trail
 **Attack:** Someone edits or deletes audit rows to hide who read a document.
-**What I did:** Each audit row stores the hash of the previous row. `verify_chain()` detects an edited or reordered row. Refused attempts are logged too.
-**Test:** `test_tampering_is_detected`, `test_refused_login_is_logged_and_chain_is_valid`.
-**Status:** **Partly open.** The chain does not detect rows deleted from the end of the log. Planned fix: database triggers in `sql/schema.sql` that block UPDATE and DELETE on `audit_log`, plus a database account for the app that cannot alter that table.
+**What I did:**
+- Each audit row stores the hash of the previous row. `verify_chain()` detects an edited or reordered row.
+- Refused attempts are logged too, not just successful ones.
+- On Postgres, database triggers (`sql/audit_triggers.sql`, applied by `scripts/setup_db.py`) reject UPDATE, DELETE and TRUNCATE on `audit_log`.
+- The app code never issues UPDATE or DELETE on that table.
+**Test:** `test_tampering_is_detected` and `test_refused_login_is_logged_and_chain_is_valid` (these run on SQLite, where triggers are not applied, so the hash chain is what they test).
+**Status:** **Partly open.**
+- The triggers are written but **not yet verified against the live Postgres**. I will try an UPDATE and a DELETE on `audit_log` from the database shell and record the result here.
+- The hash chain does not detect rows deleted from the *end* of the log. The triggers are the fix for that, so it depends on the verification above.
+- Whoever owns the database can still drop the triggers (see T18).
 
 ## T7: Two requests writing the audit log at the same moment
 **Attack/risk:** Both read the same "last row" and the chain forks, making verification fail.
@@ -99,14 +106,38 @@ Each entry: the attack, what I did about it, how it is tested, and its status.
 **Evidence:** I deleted the audit call and all 21 original tests still passed, so I added this test and confirmed it fails without the call.
 **Status:** Fixed.
 
-## Still to cover (grants, revoke and delete routes are not built yet)
-These are on my list and I will write full entries once the code exists:
-- A viewer calling owner-only routes (grant, revoke, delete)
-- Granting yourself access, or granting beyond what you were given
-- Uploaded text files shown in the browser (HTML or script in a .txt)
-- Rebuilding the "who can read" rule by hand in the list route instead of calling can()
+## T17: Uploaded files lost on free-tier redeploy
+**Risk:** Render's free disk is wiped on every redeploy, so user uploads disappear.
+**What I did:** The seed script recreates the demo files. Real uploads are not preserved.
+**Status:** Knowingly accepted for the challenge. A real deployment would use persistent storage or object storage.
 
+## T18: Audit protection depends on database triggers
+**Risk:** Triggers block UPDATE, DELETE and TRUNCATE on `audit_log` for the app, but whoever owns the database could drop them.
+**What I did:** The hash chain still detects edits, and the app never issues UPDATE or DELETE on that table.
+**Status:** Partly open. Triggers are not yet verified against the live Postgres (planned).
 
+## T19: Live demo accounts
+**Risk:** Demo accounts exist on the live site.
+**What I did:** Random passwords set through environment variables, never committed to the repo. They guard demo data only.
+**Status:** Accepted. Sessions are revoked by logout, and the live test confirmed it.
+
+## T20: Viewer or editor using owner-only routes
+**Attack:** A user with read or edit access calls grant, revoke, list-grants or delete, or upgrades their own permission.
+**What I did:** Those routes call `require()` with the `grant` or `delete` action, which only the owner passes. Refusals return 404 and are logged.
+**Test:** `test_viewer_cannot_grant_revoke_list_edit_or_delete`, `test_editor_can_edit_but_not_delete_or_grant`.
+**Evidence:** Changing `"grant"` to `"read"` in the list-grants route and `"delete"` to `"edit"` in the delete route each made a test fail.
+**Status:** Fixed.
+
+## Live check on Render (4 Nov 2026)
+Owner saw both demo documents. Viewer saw only the shared one; downloading it returned 200 and downloading the private one returned 404. A request with no token returned 401. Logout deleted the session.
+
+## Still to cover (not yet built or tested)
+- Admin activity view and admin account creation
+- Login rate limiting (also listed in T8)
+- Audit-log writes from two requests at the same moment (T7)
+- Verifying the audit triggers against the live Postgres (T6)
+- Uploaded text files shown in the browser (HTML or script in a .txt); downloads are forced as attachments with `nosniff`, but plain text accepts any UTF-8 content
+- The "who can read" rule in the list route is written by hand instead of calling `can()`, so the two could drift apart if one is changed later
 
 
 
