@@ -131,8 +131,15 @@ Each entry: the attack, what I did about it, how it is tested, and its status.
 ## Live check on Render (4 Nov 2026)
 Owner saw both demo documents. Viewer saw only the shared one; downloading it returned 200 and downloading the private one returned 404. A request with no token returned 401. Logout deleted the session.
 
+## T21: Admin routes
+**Attack:** A normal user calls admin routes, or an admin misuses their power.
+**What I did:** Every admin route depends on `require_admin`. Non-admins get the same 404 as an unknown URL, and the attempt is logged. Admins manage users and read the audit log but have no automatic access to document contents. Deactivation deletes the user's sessions. An admin cannot deactivate or change the role of themselves.
+**Test:** `test_normal_user_refused_on_every_admin_route_and_it_is_logged`, `test_admin_has_no_automatic_access_to_document_contents`, `test_deactivation_ends_sessions_immediately_and_blocks_login`, `test_admin_cannot_deactivate_self`, `test_admin_changes_are_audited`.
+**Evidence:** I disabled the admin check, the self-deactivate guard and the role-change audit line one at a time, and each made at least one test fail. Removing the session delete did not fail any test until I added `test_deactivation_deletes_session_rows`.
+**Status:** Fixed, with these **open** risks: one compromised admin can promote others with no second approval, two admins could deactivate each other and leave no admin, and failed-login `details` stores the typed username (people sometimes type a password there).
+
 ## Still to cover (not yet built or tested)
-- Admin activity view and admin account creation
+- Admin account creation is only through the seed script and the promote-role route; there is no self-service path
 - Login rate limiting (also listed in T8)
 - Audit-log writes from two requests at the same moment (T7)
 - Verifying the audit triggers against the live Postgres (T6)
