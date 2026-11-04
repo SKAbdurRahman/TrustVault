@@ -66,3 +66,10 @@ class AuditLog(Base):
     details: Mapped[str] = mapped_column(Text, default="")
     prev_hash: Mapped[str] = mapped_column(String(64), default="")
     hash: Mapped[str] = mapped_column(String(64), default="")
+
+class LoginAttempt(Base):
+    __tablename__ = "login_attempts"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    time: Mapped[datetime] = mapped_column(default=now, index=True)
+    username: Mapped[str] = mapped_column(String(50), index=True)
+    ip: Mapped[str] = mapped_column(String(64), index=True)

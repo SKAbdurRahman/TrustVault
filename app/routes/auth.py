@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -7,6 +7,7 @@ from app.db import get_db
 from app.models import User
 from app.security import (bearer, create_session, end_session, get_current_user,
                           hash_password, verify_password)
+from app.ratelimit import check_login_allowed, clear_failures, client_ip, record_failure
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -37,15 +38,20 @@ def register(body: RegisterIn, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(body: LoginIn, db: Session = Depends(get_db)):
+def login(body: LoginIn, request: Request, db: Session = Depends(get_db)):
+    ip = client_ip(request)
+    username = body.username[:50]
+    check_login_allowed(db, username, ip)  # before any password work
     user = db.query(User).filter_by(username=body.username).first()
     if user is None:
         verify_password(body.password, DUMMY_HASH)
     ok = user is not None and user.is_active and verify_password(body.password, user.password_hash)
     if not ok:
         audit.log(db, user.id if user else None, "login", result="refused",
-                  details=f"username={body.username[:50]}")
+                  details=f"username={username}")
+        record_failure(db, username, ip)
         raise HTTPException(status_code=401, detail="Invalid username or password")
+    clear_failures(db, username)
     token = create_session(db, user)
     audit.log(db, user.id, "login")
     return {"access_token": token, "token_type": "bearer"}
