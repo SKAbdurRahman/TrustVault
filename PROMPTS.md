@@ -41,4 +41,12 @@
 **What I did instead:** Added test_regrant_replaces_old_permission and confirmed it fails without the loop. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/f002cb7
 
 
+## Entry 5: 4 Nov 2026: Postgres driver mismatch broke the first deploy
 
+**Asked:** AI for a Render deployment setup using Postgres.
+
+**It produced:** Instructions to install `psycopg2-binary` and a URL fix that only handled the `postgres://` prefix.
+
+**What was wrong:** SQLAlchemy 2 defaults to the `psycopg` (v3) driver for `postgresql://` URLs, so the deploy crashed with `ModuleNotFoundError: No module named 'psycopg'`.
+
+**What I did instead:** Read the Render log, found the missing module, and made the config use `postgresql+psycopg2://` explicitly. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/50057ea
