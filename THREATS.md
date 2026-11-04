@@ -56,8 +56,10 @@ Each entry: the attack, what I did about it, how it is tested, and its status.
 
 ## T8: Guessing passwords (brute force)
 **Attack:** An attacker tries many passwords against a known username.
-**What I did:** Passwords are hashed with Argon2. Failed logins are logged. Unknown usernames take about the same time as real ones.
-**Status:** **Open.** There is no rate limit or lockout yet. Planned: limit failed attempts per username and per IP.
+**What I did:** Passwords are hashed with Argon2. After 5 failed logins per username or 20 per IP in 15 minutes, login returns 429, even for the correct password. Counts are stored in the database, so they survive restarts. A lockout is written to the audit log once. Unknown usernames are throttled the same way, so lockouts don't reveal which accounts exist.
+**Test:** `tests/test_ratelimit.py` (7 tests).
+**Evidence:** I removed the check, changed `>=` to `>`, removed the failure recording and removed the counter reset, one at a time, and each made at least one test fail. On the live Render site, six wrong logins for a made-up user gave 5 x 401 then 429 with `retry-after: 900`, and one `login_lockout` row appeared in the activity log.
+**Status:** Fixed, with open risks: anyone can lock a known username for 15 minutes by failing on purpose; `X-Forwarded-For` can be faked, so the per-IP limit is best-effort and the per-username limit is the real protection; failed-login `details` still stores the typed username.
 
 ## T9: Discovering which usernames exist
 **Risk:** `/auth/register` answers "Username already taken".
