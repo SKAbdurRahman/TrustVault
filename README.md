@@ -41,3 +41,4 @@ How to log in: open `/docs`, call `POST /auth/login`, copy the `access_token`, c
 - `sql/schema.sql`: database schema and audit-log triggers
 - API reference: the live `/docs` page lists every endpoint
 - A locked account unlocks after 15 minutes
+- `scripts/verify_triggers.py`: tries UPDATE, DELETE and TRUNCATE on the audit log and reports that each is rejected (needs `VERIFY_DB_URL`)
