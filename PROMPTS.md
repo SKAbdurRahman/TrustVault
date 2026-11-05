@@ -72,3 +72,17 @@
 **What was wrong:** Two requests at the same moment could build on the same previous row, forking the chain. I flagged it as a known risk, then wrote a 15-thread test and it failed with `verify_chain` returning (False, 2).
 
 **What I did instead:** Serialized the read-and-write with a lock and a Postgres advisory lock. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/f06992c
+
+
+## Entry 8: 5 Nov 2026: timezone-aware expiry crashed the grant route
+
+**Asked:** AI to write a grant route with an optional expiry date.
+
+**It produced:** A route that compared the request's expiry directly with a timezone-naive `now()`.
+
+**What was wrong:** An expiry like `2099-01-01T00:00:00Z` raised `TypeError: can't compare offset-naive and offset-aware datetimes`, which would have been a 500 error on the live site. My attack test caught it.
+
+**What I did instead:** Converted the value to naive UTC before comparing and storing it. I removed the fix to check the test fails without it, and it did. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/caad97b
+
+
+
