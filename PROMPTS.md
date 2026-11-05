@@ -51,6 +51,7 @@
 
 **What I did instead:** Read the Render log, found the missing module, and made the config use `postgresql+psycopg2://` explicitly. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/50057ea
 
+
 ## Entry 6: 4 Nov 2026: deactivation cleanup was untested
 
 **Asked:** AI to write admin routes with a deactivate-user route that ends the user's sessions, plus tests.
@@ -60,3 +61,14 @@
 **What was wrong:** I removed the session-delete line and all 39 tests still passed. The old token was still refused because `get_current_user` checks `is_active`, so access was safe, but nothing tested that the session rows were removed.
 
 **What I did instead:** Added test_deactivation_deletes_session_rows and confirmed it fails without the delete call. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/f5fd065
+
+
+## Entry 7: 5 Nov 2026: audit log could fork its own hash chain
+
+**Asked:** AI to write a hash-chained audit log.
+
+**It produced:** An `audit.log` that reads the last row, then writes the next one.
+
+**What was wrong:** Two requests at the same moment could build on the same previous row, forking the chain. I flagged it as a known risk, then wrote a 15-thread test and it failed with `verify_chain` returning (False, 2).
+
+**What I did instead:** Serialized the read-and-write with a lock and a Postgres advisory lock. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/f06992c
