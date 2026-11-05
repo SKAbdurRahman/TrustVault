@@ -50,9 +50,11 @@ Each entry: the attack, what I did about it, how it is tested, and its status.
 - Whoever owns the database can still drop the triggers (see T18).
 
 ## T7: Two requests writing the audit log at the same moment
-**Attack/risk:** Both read the same "last row" and the chain forks, making verification fail.
-**What I did:** Nothing yet.
-**Status:** **Open.** Planned fix: write audit rows inside a lock or a serialized transaction.
+**Risk:** Both read the same "last row" and the chain forks, making verification fail.
+**What I did:** Audit writes run under a process lock, and on Postgres also under an advisory transaction lock, from reading the last row until the commit.
+**Test:** `test_concurrent_audit_writes_do_not_fork_the_chain` (15 threads, hashing slowed to widen the race).
+**Evidence:** Before adding the lock, this test failed with `verify_chain` returning (False, 2), so the fork was real. With the lock it passes, and removing the lock again makes it fail.
+**Status:** Fixed for threads, and for multiple processes on Postgres. The Postgres advisory lock is not covered by an automated test, because the tests run on SQLite.
 
 ## T8: Guessing passwords (brute force)
 **Attack:** An attacker tries many passwords against a known username.
@@ -142,7 +144,6 @@ Owner saw both demo documents. Viewer saw only the shared one; downloading it re
 
 ## Still to cover (not yet built or tested)
 - Admin account creation is only through the seed script and the promote-role route; there is no self-service path
-- Audit-log writes from two requests at the same moment (T7)
 - Verifying the audit triggers against the live Postgres (T6)
 - Uploaded text files shown in the browser (HTML or script in a .txt); downloads are forced as attachments with `nosniff`, but plain text accepts any UTF-8 content
 - The "who can read" rule in the list route is written by hand instead of calling `can()`, so the two could drift apart if one is changed later
