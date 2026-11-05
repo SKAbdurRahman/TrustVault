@@ -44,9 +44,8 @@ Each entry: the attack, what I did about it, how it is tested, and its status.
 - On Postgres, database triggers (`sql/audit_triggers.sql`, applied by `scripts/setup_db.py`) reject UPDATE, DELETE and TRUNCATE on `audit_log`.
 - The app code never issues UPDATE or DELETE on that table.
 **Test:** `test_tampering_is_detected` and `test_refused_login_is_logged_and_chain_is_valid` (these run on SQLite, where triggers are not applied, so the hash chain is what they test).
-**Status:** **Partly open.**
-- The triggers are written but **not yet verified against the live Postgres**. I will try an UPDATE and a DELETE on `audit_log` from the database shell and record the result here.
-- The hash chain does not detect rows deleted from the *end* of the log. The triggers are the fix for that, so it depends on the verification above.
+**Status:** Partly open.
+- **Verified on the live Postgres (5 Nov 2026):** UPDATE, DELETE and TRUNCATE on `audit_log` were each rejected with `audit_log is append-only`, using `scripts/verify_triggers.py`.
 - Whoever owns the database can still drop the triggers (see T18).
 
 ## T7: Two requests writing the audit log at the same moment
@@ -118,7 +117,7 @@ Each entry: the attack, what I did about it, how it is tested, and its status.
 ## T18: Audit protection depends on database triggers
 **Risk:** Triggers block UPDATE, DELETE and TRUNCATE on `audit_log` for the app, but whoever owns the database could drop them.
 **What I did:** The hash chain still detects edits, and the app never issues UPDATE or DELETE on that table.
-**Status:** Partly open. Triggers are not yet verified against the live Postgres (planned).
+**Status:** Partly open. The triggers were verified against the live Postgres on 5 Nov 2026: UPDATE, DELETE and TRUNCATE on `audit_log` were each rejected with `audit_log is append-only` (see T6 and `scripts/verify_triggers.py`). What remains open is that whoever owns the database can still drop the triggers, so the log is protected against the app, not against the database owner.
 
 ## T19: Live demo accounts
 **Risk:** Demo accounts exist on the live site.
