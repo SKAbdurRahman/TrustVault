@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -34,18 +34,21 @@ def grant_access(doc_id: int, body: GrantIn, user: User = Depends(get_current_us
         raise HTTPException(status_code=404, detail="User not found")
     if target.id == doc.owner_id:
         raise HTTPException(status_code=400, detail="Owner already has full access")
-    if body.expires_at is not None and body.expires_at <= now():
+    exp = body.expires_at
+    if exp is not None and exp.tzinfo is not None:
+        exp = exp.astimezone(timezone.utc).replace(tzinfo=None)  # store as naive UTC
+    if exp is not None and exp <= now():
         raise HTTPException(status_code=400, detail="Expiry must be in the future")
     # Replace any earlier active grant for this person, so there is never ambiguity.
     for old in db.query(Grant).filter(Grant.document_id == doc.id, Grant.user_id == target.id,
                                       Grant.revoked_at.is_(None)).all():
         old.revoked_at = now()
     g = Grant(document_id=doc.id, user_id=target.id, permission=body.permission,
-              granted_by=user.id, expires_at=body.expires_at)
+              granted_by=user.id, expires_at=exp)
     db.add(g)
     db.commit()
     audit.log(db, user.id, "grant", doc.id,
-              details=f"to={target.username} permission={body.permission} expires={body.expires_at}")
+              details=f"to={target.username} permission={body.permission} expires={exp}")
     return _grant_out(g, target.username)
 
 
