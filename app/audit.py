@@ -1,4 +1,8 @@
 import hashlib
+import threading
+from sqlalchemy import text
+_write_lock = threading.Lock()
+_PG_LOCK_KEY = 748392  # arbitrary number that identifies "audit log writer"
 from typing import Optional, Tuple
 from sqlalchemy.orm import Session
 from app.models import AuditLog, now
@@ -13,16 +17,21 @@ def _compute_hash(prev_hash, time, actor_id, action, document_id, result, detail
 def log(db: Session, actor_id: Optional[int], action: str,
         document_id: Optional[int] = None, result: str = "allowed",
         details: str = "") -> AuditLog:
-    last = db.query(AuditLog).order_by(AuditLog.id.desc()).first()
-    prev_hash = last.hash if last else ""
-    t = now()
-    row = AuditLog(
-        time=t, actor_id=actor_id, action=action, document_id=document_id,
-        result=result, details=details, prev_hash=prev_hash,
-        hash=_compute_hash(prev_hash, t, actor_id, action, document_id, result, details),
-    )
-    db.add(row)
-    db.commit()  # committed immediately, so refused attempts are saved even if the request then fails
+    # Everything from "read the last row" to "commit" happens under the lock,
+    # so two requests can never both build on the same previous row.
+    with _write_lock:
+        if db.get_bind().dialect.name == "postgresql":
+            db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": _PG_LOCK_KEY})
+        last = db.query(AuditLog).order_by(AuditLog.id.desc()).first()
+        prev_hash = last.hash if last else ""
+        t = now()
+        row = AuditLog(
+            time=t, actor_id=actor_id, action=action, document_id=document_id,
+            result=result, details=details, prev_hash=prev_hash,
+            hash=_compute_hash(prev_hash, t, actor_id, action, document_id, result, details),
+        )
+        db.add(row)
+        db.commit()  # commit releases the Postgres lock too
     return row
 
 
