@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query , Path
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from app import audit
@@ -24,9 +24,9 @@ class RoleIn(BaseModel):
 
 @router.get("/activity")
 def activity(
-    actor_id: Optional[int] = None,
+    actor_id: Optional[int] = Query(None, ge=1, le=2147483647),
     action: Optional[str] = Query(None, max_length=40),
-    document_id: Optional[int] = None,
+    document_id: Optional[int] = Query(None, ge=1, le=2147483647),
     result: Optional[str] = Query(None, pattern="^(allowed|refused)$"),
     limit: int = Query(100, ge=1, le=500),
     offset: int = Query(0, ge=0),
@@ -72,7 +72,8 @@ def _target(db: Session, user_id: int) -> User:
 
 
 @router.post("/users/{user_id}/deactivate")
-def deactivate(user_id: int, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def deactivate(user_id: int = Path(ge=1, le=2147483647), admin: User = Depends(require_admin),
+               db: Session = Depends(get_db)):
     target = _target(db, user_id)
     if target.id == admin.id:
         raise HTTPException(status_code=400, detail="You cannot deactivate yourself")
@@ -84,7 +85,8 @@ def deactivate(user_id: int, admin: User = Depends(require_admin), db: Session =
 
 
 @router.post("/users/{user_id}/activate")
-def activate(user_id: int, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def activate(user_id: int = Path(ge=1, le=2147483647), admin: User = Depends(require_admin),
+             db: Session = Depends(get_db)):
     target = _target(db, user_id)
     target.is_active = True
     db.commit()
@@ -93,8 +95,8 @@ def activate(user_id: int, admin: User = Depends(require_admin), db: Session = D
 
 
 @router.patch("/users/{user_id}/role")
-def change_role(user_id: int, body: RoleIn, admin: User = Depends(require_admin),
-                db: Session = Depends(get_db)):
+def change_role(body: RoleIn, user_id: int = Path(ge=1, le=2147483647),
+                admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     target = _target(db, user_id)
     if target.id == admin.id:
         raise HTTPException(status_code=400, detail="You cannot change your own role")
