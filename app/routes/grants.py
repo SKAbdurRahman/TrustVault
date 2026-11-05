@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException , Path
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from app import audit
@@ -10,7 +10,7 @@ from app.permissions import require
 from app.security import get_current_user
 
 router = APIRouter(prefix="/documents/{doc_id}/grants", tags=["grants"])
-
+DocId = Path(ge=1, le=2147483647)
 
 class GrantIn(BaseModel):
     username: str = Field(max_length=50)
@@ -25,7 +25,7 @@ def _grant_out(g: Grant, username: str) -> dict:
 
 
 @router.post("", status_code=201)
-def grant_access(doc_id: int, body: GrantIn, user: User = Depends(get_current_user),
+def grant_access(body: GrantIn,doc_id: int = DocId, user: User = Depends(get_current_user),
                  db: Session = Depends(get_db)):
     doc = require(db, user, doc_id, "grant")  # only the owner passes this
     target = db.query(User).filter_by(username=body.username, is_active=True).first()
@@ -53,7 +53,7 @@ def grant_access(doc_id: int, body: GrantIn, user: User = Depends(get_current_us
 
 
 @router.get("")
-def list_grants(doc_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def list_grants(doc_id: int = DocId, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     doc = require(db, user, doc_id, "grant")  # owner only
     rows = (db.query(Grant, User).join(User, User.id == Grant.user_id)
             .filter(Grant.document_id == doc.id, Grant.revoked_at.is_(None)).all())
@@ -61,8 +61,8 @@ def list_grants(doc_id: int, user: User = Depends(get_current_user), db: Session
 
 
 @router.delete("/{grant_id}")
-def revoke_access(doc_id: int, grant_id: int, user: User = Depends(get_current_user),
-                  db: Session = Depends(get_db)):
+def revoke_access(doc_id: int = DocId, grant_id: int = Path(ge=1, le=2147483647),
+                  user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     doc = require(db, user, doc_id, "grant")  # owner only
     g = db.query(Grant).filter_by(id=grant_id, document_id=doc.id, revoked_at=None).first()
     if g is None:

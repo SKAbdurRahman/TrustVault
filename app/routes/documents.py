@@ -1,7 +1,7 @@
 import os
 import uuid
 from typing import Optional
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Path, UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -13,7 +13,7 @@ from app.permissions import require
 from app.security import get_current_user
 
 router = APIRouter(prefix="/documents", tags=["documents"])
-
+DocId = Path(ge=1, le=2147483647)
 
 def _detect_type(data: bytes) -> Optional[str]:
     """Decide the type from the content itself. The client's claim is ignored."""
@@ -103,14 +103,14 @@ def list_documents(
 
 
 @router.get("/{doc_id}")
-def get_document(doc_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_document(doc_id: int = DocId, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     doc = require(db, user, doc_id, "read")
     audit.log(db, user.id, "read", doc.id)
     return _doc_out(doc)
 
 
 @router.get("/{doc_id}/download")
-def download(doc_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def download(doc_id: int = DocId, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     doc = require(db, user, doc_id, "download")
     path = os.path.join(STORAGE_DIR, doc.stored_name)
     if not os.path.isfile(path):
@@ -120,7 +120,7 @@ def download(doc_id: int, user: User = Depends(get_current_user), db: Session = 
                         headers={"X-Content-Type-Options": "nosniff"})
 
 @router.patch("/{doc_id}")
-def edit_document(doc_id: int, title: Optional[str] = Form(None, max_length=200),
+def edit_document(doc_id: int = DocId, title: Optional[str] = Form(None, max_length=200),
                   category: Optional[str] = Form(None, max_length=50),
                   user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     doc = require(db, user, doc_id, "edit")
@@ -137,7 +137,7 @@ def edit_document(doc_id: int, title: Optional[str] = Form(None, max_length=200)
 
 
 @router.delete("/{doc_id}")
-def delete_document(doc_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def delete_document(doc_id: int = DocId, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     doc = require(db, user, doc_id, "delete")  # owner only
     doc.deleted_at = now()  # soft delete: the file and the audit trail stay
     db.commit()

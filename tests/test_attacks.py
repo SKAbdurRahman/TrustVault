@@ -54,9 +54,16 @@ def test_search_wildcards_do_not_widen_access(client):
 def test_odd_document_ids_are_just_not_found(client):
     a, _, _ = three_users(client)
     for bad in ("0", "-1"):
-        assert client.get(f"/documents/{bad}", headers=a).status_code == 404
+        assert client.get(f"/documents/{bad}", headers=a).status_code in (404, 422)
 
 
 def test_garbage_and_wrong_scheme_tokens_rejected(client):
     for h in ({"Authorization": "Bearer abc"}, {"Authorization": "Basic abc"}):
         assert client.get("/auth/me", headers=h).status_code == 401
+
+def test_huge_ids_are_rejected_not_crashed(client):
+    a, _, _ = three_users(client)
+    for url in ("/documents/99999999999999999999",
+                "/documents/99999999999999999999/download",
+                "/documents/99999999999999999999/grants"):
+        assert client.get(url, headers=a).status_code in (404, 422)
