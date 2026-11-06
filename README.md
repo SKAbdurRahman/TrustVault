@@ -15,7 +15,8 @@ The database on Render's free plan expires on 4 Dec 2026.
 | Owner | demo_owner | Ur@owner7 |
 | Viewer | demo_viewer | Theyr@viewers2 |
 
-How to log in: open `/docs`, call `POST /auth/login`, copy the `access_token`, click **Authorize**, paste it.
+- How to log in: open `/docs`, call `POST /auth/login`, copy the `access_token`, click **Authorize**, paste it.
+- A locked account unlocks after 15 minutes (5 failed logins per username or 20 per IP trigger it), so a mistyped demo password is not permanent.
 
 ## What it does
 - Login with roles (admin, owner, viewer), sessions stored in the database
@@ -40,5 +41,52 @@ How to log in: open `/docs`, call `POST /auth/login`, copy the `access_token`, c
 - `PROMPTS.md`: where the AI was wrong and what I did about it
 - `sql/schema.sql`: database schema and audit-log triggers
 - API reference: the live `/docs` page lists every endpoint
-- A locked account unlocks after 15 minutes
-- `scripts/verify_triggers.py`: tries UPDATE, DELETE and TRUNCATE on the audit log and reports that each is rejected (needs `VERIFY_DB_URL`)
+- `scripts/verify_triggers.py`: tries UPDATE, DELETE and TRUNCATE on the audit log and reports that each is rejected (needs `VERIFY_DB_URL`, postgresql://trustvault_db_d79a_user:le8VXkEcyo1O5lPLFq2hsQ7mOam2fd2T@dpg-dblddp942hec73fu41j0-a.oregon-postgres.render.com/trustvault_db_d79a)
+
+## API: who may call each endpoint
+
+All endpoints except register, login and health need `Authorization: Bearer <token>`.
+Where someone is refused, the answer is **404** (same as a missing item), so existence is not revealed. A missing or invalid token gives **401**. Every refusal is written to the audit log.
+
+"Owner" means the user who uploaded the document. "Editor" and "Viewer" mean a user holding an active `edit` or `read` grant on that document. Admin has **no** automatic access to document contents.
+
+### Auth
+| Endpoint | Who |
+|---|---|
+| `POST /auth/register` | Anyone (always creates a normal user) |
+| `POST /auth/login` | Anyone (throttled: 5 failures per username or 20 per IP in 15 minutes gives 429) |
+| `POST /auth/logout` | Logged-in user (ends their own session) |
+| `GET /auth/me` | Logged-in user |
+
+### Documents
+| Endpoint | Owner | Editor | Viewer | Other users | Admin (no grant) |
+|---|---|---|---|---|---|
+| `POST /documents` (upload) | yes | n/a | n/a | any logged-in user can upload their own | same |
+| `GET /documents` (list, search) | own + granted only | granted | granted | sees nothing of others | own + granted only |
+| `GET /documents/{id}` | yes | yes | yes | 404 | 404 |
+| `GET /documents/{id}/download` | yes | yes | yes | 404 | 404 |
+| `PATCH /documents/{id}` (edit title, category) | yes | yes | 404 | 404 | 404 |
+| `DELETE /documents/{id}` (soft delete) | yes | 404 | 404 | 404 | 404 |
+
+### Grants (all owner-only)
+| Endpoint | Who |
+|---|---|
+| `POST /documents/{id}/grants` (grant read or edit, optional expiry) | Owner only |
+| `GET /documents/{id}/grants` | Owner only |
+| `DELETE /documents/{id}/grants/{grant_id}` (revoke, effective on the next request) | Owner only |
+
+### Admin (role `admin` only; everyone else gets 404)
+| Endpoint | What it does |
+|---|---|
+| `GET /admin/activity` | Read the audit log, filter by user, action, document, result |
+| `GET /admin/audit/verify` | Check the audit hash chain |
+| `GET /admin/users` | List users |
+| `POST /admin/users/{id}/deactivate` | Deactivate a user and end their sessions (not yourself) |
+| `POST /admin/users/{id}/activate` | Reactivate a user |
+| `PATCH /admin/users/{id}/role` | Change a user's role (not your own) |
+
+### Other
+| Endpoint | Who |
+|---|---|
+| `GET /health` | Anyone |
+| `GET /` | Anyone (redirects to `/docs`) |
