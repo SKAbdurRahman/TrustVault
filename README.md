@@ -46,7 +46,7 @@ The database on Render's free plan expires on 4 Dec 2026.
 - `PROMPTS.md`: where the AI was wrong and what I did about it
 - `sql/schema.sql`: database schema and audit-log triggers
 - API reference: the live `/docs` page lists every endpoint
-- `scripts/verify_triggers.py`: tries UPDATE, DELETE and TRUNCATE on the audit log and reports that each is rejected (needs `VERIFY_DB_URL`, postgresql://trustvault_db_d79a_user:le8VXkEcyo1O5lPLFq2hsQ7mOam2fd2T@dpg-dblddp942hec73fu41j0-a.oregon-postgres.render.com/trustvault_db_d79a)
+- `scripts/verify_triggers.py`: tries UPDATE, DELETE and TRUNCATE on the audit log and reports that each is rejected (set `VERIFY_DB_URL` to your own Postgres connection string first)
 
 ## API: who may call each endpoint
 
