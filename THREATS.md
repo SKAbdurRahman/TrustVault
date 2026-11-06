@@ -141,11 +141,17 @@ Owner saw both demo documents. Viewer saw only the shared one; downloading it re
 **Evidence:** I disabled the admin check, the self-deactivate guard and the role-change audit line one at a time, and each made at least one test fail. Removing the session delete did not fail any test until I added `test_deactivation_deletes_session_rows`.
 **Status:** Fixed, with these **open** risks: one compromised admin can promote others with no second approval, two admins could deactivate each other and leave no admin, and failed-login `details` stores the typed username (people sometimes type a password there).
 
-## Still to cover (not yet built or tested)
+## T22: Tests run on SQLite, production runs Postgres
+**Risk:** Some bugs only appear on Postgres (a huge ID crashed it with a 500 while SQLite tests passed).
+**What I did:** Bounded all ID parameters and verified the fix with live calls.
+**Status:** Open. A real project would run the test suite against Postgres too.
+
+## Still to cover (known gaps)
 - Admin account creation is only through the seed script and the promote-role route; there is no self-service path
-- Verifying the audit triggers against the live Postgres (T6)
 - Uploaded text files shown in the browser (HTML or script in a .txt); downloads are forced as attachments with `nosniff`, but plain text accepts any UTF-8 content
 - The "who can read" rule in the list route is written by hand instead of calling `can()`, so the two could drift apart if one is changed later
+- Lockout can be used against a known username (it expires after 15 minutes), and `X-Forwarded-For` can be faked, so the per-IP limit is best-effort (see T8)
+- Free-tier disk is wiped on redeploy, so real uploads are lost (see T17)
 
 
 
