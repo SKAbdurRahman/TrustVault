@@ -146,12 +146,19 @@ Owner saw both demo documents. Viewer saw only the shared one; downloading it re
 **What I did:** Bounded all ID parameters and verified the fix with live calls.
 **Status:** Open. A real project would run the test suite against Postgres too.
 
+## T23: Deploy can hang on a database lock
+**Risk:** The start command re-applies audit triggers on every start. A lock held by another connection made one deploy hang until Render timed it out (Port scan timeout, 18m 30s).
+**What I did:** A manual redeploy succeeded. Added a 10-second lock timeout so a repeat fails fast with a clear error.
+**Status:** Mitigated, not eliminated.
+
 ## Still to cover (known gaps)
 - Admin account creation is only through the seed script and the promote-role route; there is no self-service path
 - Uploaded text files shown in the browser (HTML or script in a .txt); downloads are forced as attachments with `nosniff`, but plain text accepts any UTF-8 content
 - The "who can read" rule in the list route is written by hand instead of calling `can()`, so the two could drift apart if one is changed later
 - Lockout can be used against a known username (it expires after 15 minutes), and `X-Forwarded-For` can be faked, so the per-IP limit is best-effort (see T8)
 - Free-tier disk is wiped on redeploy, so real uploads are lost (see T17)
+- Tests run on SQLite while production runs Postgres (see T22), so some bugs only show live
+- A deploy can hang on a database lock (see T23)
 
 
 
