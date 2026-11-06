@@ -146,10 +146,11 @@ Owner saw both demo documents. Viewer saw only the shared one; downloading it re
 **What I did:** Bounded all ID parameters and verified the fix with live calls.
 **Status:** Open. A real project would run the test suite against Postgres too.
 
-## T23: Deploy can hang on a database lock
-**Risk:** The start command re-applies audit triggers on every start. A lock held by another connection made one deploy hang until Render timed it out (Port scan timeout, 18m 30s).
-**What I did:** A manual redeploy succeeded. Added a 10-second lock timeout so a repeat fails fast with a clear error.
-**Status:** Mitigated, not eliminated.
+## T23: Deploy hung on startup once
+**Risk:** One deploy printed nothing after the start command began and was timed out by Render after 18m 30s (Port scan timeout). A manual redeploy worked.
+**Cause:** Not confirmed. Possible causes are a database lock, the database being briefly unreachable, or free-tier slowness.
+**What I did:** Added a 30-second lock timeout and a 10-second connection timeout, so a repeat fails fast with a clear error.
+**Status:** Mitigated, cause not proven.
 
 ## Still to cover (known gaps)
 - Admin account creation is only through the seed script and the promote-role route; there is no self-service path
@@ -158,7 +159,7 @@ Owner saw both demo documents. Viewer saw only the shared one; downloading it re
 - Lockout can be used against a known username (it expires after 15 minutes), and `X-Forwarded-For` can be faked, so the per-IP limit is best-effort (see T8)
 - Free-tier disk is wiped on redeploy, so real uploads are lost (see T17)
 - Tests run on SQLite while production runs Postgres (see T22), so some bugs only show live
-- A deploy can hang on a database lock (see T23)
+- A deploy hung once, cause unconfirmed (see T23)” so it matches the new T23 wording
 
 
 
