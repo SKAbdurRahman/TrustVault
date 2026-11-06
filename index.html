@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: blob: https://fonts.googleapis.com https://fonts.gstatic.com; connect-src 'self' https://trustvault-kw7s.onrender.com http://127.0.0.1:8000 http://localhost:* https:; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com data:; frame-src 'self' blob:; object-src 'none'; base-uri 'self';">
+  <title>TrustVault | Zero-Trust Document Security Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #080d1a;
+      --bg-surface: #0f172a;
+      --bg-surface-elevated: #1e293b;
+      --bg-glass: rgba(15, 23, 42, 0.75);
+      --border-subtle: #1e293b;
+      --border-focus: #38bdf8;
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent-cyan: #06b6d4;
+      --accent-cyan-glow: rgba(6, 182, 212, 0.25);
+      --accent-emerald: #10b981;
+      --accent-emerald-glow: rgba(16, 185, 129, 0.25);
+      --accent-purple: #a855f7;
+      --accent-purple-glow: rgba(168, 85, 247, 0.25);
+      --accent-crimson: #ef4444;
+      --accent-crimson-glow: rgba(239, 68, 68, 0.25);
+      --accent-amber: #f59e0b;
+      --accent-amber-glow: rgba(245, 158, 11, 0.25);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --shadow-vault: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px 0 rgba(6, 182, 212, 0.05);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.5;
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.06) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    /* Top Navigation Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: var(--bg-glass);
+      border-bottom: 1px solid var(--border-glass);
+      padding: 0.75rem 1.5rem;
+    }
+
+    .nav-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 0 15px var(--accent-cyan-glow);
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-title span.vault-badge {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Server Endpoint Selector & Status */
+    .server-status-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-subtle);
+      padding: 0.3rem 0.65rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      transition: background 0.3s;
+    }
+
+    .status-dot.online {
+      background: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+    }
+
+    .status-dot.waking {
+      background: var(--accent-amber);
+      box-shadow: 0 0 8px var(--accent-amber);
+      animation: pulse 1.5s infinite;
+    }
+
+    .status-dot.offline {
+      background: var(--accent-crimson);
+      box-shadow: 0 0 8px var(--accent-crimson);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .server-select {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 0.8125rem;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .server-select option {
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+    }
+
+    .user-pill .role-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .role-badge.admin {
+      background: rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+
+    .role-badge.user {
+      background: rgba(6, 182, 212, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: white;
+      box-shadow: 0 2px 10px var(--accent-cyan-glow);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0369a1, #0891b2);
+      box-shadow: 0 4px 15px var(--accent-cyan-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      border-color: var(--border-glass);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #273549;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-sm {
+      padding: 0.3rem 0.65rem;
+      font-size: 0.8125rem;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Alert / Server Waking Notice */
+    .vault-banner {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(6, 182, 212, 0.1));
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.875rem;
+      color: #fde68a;
+    }
+
+    .vault-banner.hidden {
+      display: none;
+    }
+
+    /* Views */
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Auth View */
+    .auth-container {
+      max-width: 460px;
+      margin: 2rem auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-vault);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .auth-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .auth-header p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: var(--bg-base);
+      border-radius: var(--radius-md);
+      padding: 0.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-tab-btn {
+      flex: 1;
+      padding: 0.5rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.875rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-tab-btn.active {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 0.85rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9375rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    .input-hint {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.35rem;
+    }
+
+    /* Demo Quick Logins */
+    .demo-creds-card {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: var(--bg-base);
+      border: 1px dashed var(--border-glass);
+      border-radius: var(--radius-md);
+    }
+
+    .demo-creds-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .demo-btns-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .demo-btn {
+      padding: 0.4rem;
+      font-size: 0.75rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .demo-btn:hover {
+      background: #273549;
+      color: var(--text-main);
+      border-color: var(--accent-cyan);
+    }
+
+    .security-notice {
+      margin-top: 1.25rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      line-height: 1.4;
+    }
+
+    /* Navigation Tabs Bar for Logged-In User */
+    .dashboard-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 2rem;
+      padding-bottom: 0.5rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-list {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-btn.active {
+      background: var(--bg-surface-elevated);
+      color: var(--accent-cyan);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Document Controls Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-input-wrap input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.6rem 1rem 0.6rem 2.25rem;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      outline: none;
+    }
+
+    .search-input-wrap svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    .category-select {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.6rem 0.85rem;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      outline: none;
+    }
+
+    /* Document Grid */
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .doc-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .doc-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(6, 182, 212, 0.3);
+      box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .doc-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .doc-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-main);
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .doc-type-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: rgba(6, 182, 212, 0.1);
+      color: var(--accent-cyan);
+    }
+
+    .doc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .badge-category {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      color: var(--text-muted);
+    }
+
+    .badge-owner {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .badge-shared {
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .doc-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 0.75rem;
+      margin-top: auto;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      max-width: 580px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-vault);
+      animation: modalScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-card.modal-lg {
+      max-width: 850px;
+    }
+
+    @keyframes modalScale {
+      from { transform: scale(0.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .modal-close:hover {
+      color: var(--text-main);
+    }
+
+    /* Drag & Drop Upload Zone */
+    .drop-zone {
+      border: 2px dashed var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      background: var(--bg-base);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.04);
+    }
+
+    .drop-zone-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 0.75rem;
+      color: var(--accent-cyan);
+    }
+
+    .file-validation-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      margin-top: 0.75rem;
+      font-family: var(--font-mono);
+    }
+
+    .file-validation-badge.valid {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .file-validation-badge.invalid {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Sandboxed Preview */
+    .preview-container {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      min-height: 280px;
+      max-height: 520px;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .preview-container pre {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      word-break: break-word;
+      width: 100%;
+    }
+
+    .preview-container img {
+      max-width: 100%;
+      max-height: 480px;
+      border-radius: var(--radius-sm);
+      object-fit: contain;
+    }
+
+    .preview-container iframe {
+      width: 100%;
+      height: 480px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: white;
+    }
+
+    /* Admin Center & Hash Chain */
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .chain-verifier-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px -10px var(--accent-cyan-glow);
+    }
+
+    .chain-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-full);
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      margin-top: 0.75rem;
+    }
+
+    .chain-status-badge.intact {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .chain-status-badge.broken {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    /* Tables */
+    .table-responsive {
+      overflow-x: auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    th {
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .result-pill {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .result-pill.allowed {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+    }
+
+    .result-pill.refused {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-width: 380px;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      color: var(--text-main);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.2s;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast.toast-success { border-left: 4px solid var(--accent-emerald); }
+    .toast.toast-error { border-left: 4px solid var(--accent-crimson); }
+    .toast.toast-warning { border-left: 4px solid var(--accent-amber); }
+    .toast.toast-info { border-left: 4px solid var(--accent-cyan); }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-glass);
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+      margin-top: auto;
+    }
+
+    footer a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .nav-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .docs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+        <a href="#" class="brand" onclick="location.reload(); return false;">
+          <div class="brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <div class="brand-title">
+            TrustVault
+            <span class="vault-badge">Zero-Trust</span>
+          </div>
+        </a>
+
+        <!-- Vault Backend Endpoint Selector -->
+        <div class="server-status-bar" title="Vault API Connection">
+          <div id="statusDot" class="status-dot offline"></div>
+          <span id="statusText" style="color: var(--text-muted); font-size: 0.75rem;">Connecting...</span>
+          <select id="serverSelect" class="server-select" onchange="TrustApp.changeServer(this.value)">
+            <option value="https://trustvault-kw7s.onrender.com">Cloud (Render Live)</option>
+            <option value="http://127.0.0.1:8000">Local (127.0.0.1:8000)</option>
+            <option value="custom">Custom URL...</option>
+          </select>
+          <button class="btn btn-sm btn-secondary" onclick="TrustApp.checkHealth(true)" style="padding: 2px 6px; font-size: 0.7rem;" title="Ping Backend">
+            ⚡ Ping
+          </button>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <a href="https://trustvault-kw7s.onrender.com/docs" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary" id="apiDocsBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          API Docs
+        </a>
+
+        <div id="userPill" class="user-pill" style="display: none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span id="usernameDisplay" style="font-weight: 600;"></span>
+          <span id="roleDisplay" class="role-badge user">USER</span>
+          <button class="btn btn-sm btn-danger" onclick="TrustApp.logout()" style="padding: 2px 6px; margin-left: 0.25rem;">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Body -->
+  <main>
+    <!-- Server Wakeup Notice (for Render Cold Start) -->
+    <div id="renderNotice" class="vault-banner hidden">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span><strong>Vault Instance Waking Up:</strong> Render free-tier instances sleep when idle. The first request takes ~45 seconds to spin up. Please stand by while the secure enclave boots.</span>
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="TrustApp.dismissNotice()">Dismiss</button>
+    </div>
+
+    <!-- 1. AUTHENTICATION VIEW (Logged Out) -->
+    <section id="authView" class="view-section active">
+      <div class="auth-container">
+        <div class="auth-header">
+          <h1>Secure Enclave Access</h1>
+          <p>Verify identity to access cryptographically protected documents</p>
+        </div>
+
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" id="tabLoginBtn" onclick="TrustApp.switchAuthTab('login')">Sign In</button>
+          <button class="auth-tab-btn" id="tabRegisterBtn" onclick="TrustApp.switchAuthTab('register')">Register Account</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="TrustApp.handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label" for="loginUsername">Username</label>
+            <input type="text" id="loginUsername" class="form-input" placeholder="e.g. demo_owner" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••••••" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" id="loginSubmitBtn">
+            Authenticate Session
+          </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" onsubmit="TrustApp.handleRegister(event)" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="regUsername">Desired Username</label>
+            <input type="text" id="regUsername" class="form-input" placeholder="Letters, numbers, ., -, _" pattern="^[A-Za-z0-9_.-]+$" minlength="3" maxlength="50" required autocomplete="username">
+            <div class="input-hint">3–50 chars: alphanumeric, period, hyphen, or underscore.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="regPassword">Password</label>
+            <input type="password" id="regPassword" class="form-input" placeholder="Minimum 8 characters" minlength="8" maxlength="128" required autocomplete="new-password">
+            <div class="input-hint">Hashed with Argon2id on server. Role starts as 'user'.</div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" id="regSubmitBtn">
+            Create Account
+          </button>
+        </form>
+
+        <!-- Demo Accounts Helper -->
+        <div class="demo-creds-card">
+          <div class="demo-creds-title">Demo Testing Credentials</div>
+          <div class="demo-btns-grid">
+            <button class="demo-btn" type="button" onclick="TrustApp.fillDemo('demo_owner', 'OwnerPass123!')">
+              <strong>demo_owner</strong><br>Owner
+            </button>
+            <button class="demo-btn" type="button" onclick="TrustApp.fillDemo('demo_viewer', 'ViewerPass123!')">
+              <strong>demo_viewer</strong><br>Viewer
+            </button>
+            <button class="demo-btn" type="button" onclick="TrustApp.fillDemo('demo_admin', 'AdminPass123!')">
+              <strong>demo_admin</strong><br>Admin
+            </button>
+          </div>
+        </div>
+
+        <div class="security-notice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top: 1px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>Rate limiting enforces a 15-minute lockout after 5 failed logins per username or 20 per IP. All attempts are written to the immutable audit log.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. DASHBOARD VIEW (Logged In) -->
+    <section id="dashboardView" class="view-section">
+      <!-- Dashboard Top Navigation Tabs -->
+      <div class="dashboard-nav">
+        <div class="tab-list">
+          <button class="tab-btn active" id="tabDocs" onclick="TrustApp.switchDashboardTab('docs')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Documents
+          </button>
+          <button class="tab-btn" id="tabUpload" onclick="TrustApp.openUploadModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Upload File
+          </button>
+          <button class="tab-btn" id="tabAdmin" onclick="TrustApp.switchDashboardTab('admin')" style="display: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Admin Operations
+          </button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button class="btn btn-sm btn-secondary" onclick="TrustApp.refreshCurrentView()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content A: Documents Explorer -->
+      <div id="subViewDocs" class="sub-view">
+        <div class="toolbar">
+          <div class="search-filter-group">
+            <div class="search-input-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="docSearchInput" placeholder="Search accessible documents..." oninput="TrustApp.debounceSearch()">
+            </div>
+            <select id="docCategoryFilter" class="category-select" onchange="TrustApp.loadDocuments()">
+              <option value="">All Categories</option>
+              <option value="general">General</option>
+              <option value="contracts">Contracts</option>
+              <option value="hr">HR</option>
+              <option value="financial">Financial</option>
+              <option value="legal">Legal</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" onclick="TrustApp.openUploadModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Upload Document
+          </button>
+        </div>
+
+        <!-- Documents Container -->
+        <div id="docsList" class="docs-grid">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="docsEmpty" class="empty-state" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><circle cx="12" cy="14" r="2"></circle></svg>
+          <h3>No accessible documents found</h3>
+          <p style="font-size: 0.875rem; margin-top: 0.25rem;">Upload a document or ask an owner to grant read/edit permissions to your username.</p>
+        </div>
+      </div>
+
+      <!-- Tab Content B: Admin Operations Center -->
+      <div id="subViewAdmin" class="sub-view" style="display: none;">
+        <!-- Cryptographic Audit Chain Verification Card -->
+        <div class="chain-verifier-card">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div>
+              <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem;">Cryptographic Audit Trail Chain</h2>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">
+                Each audit entry stores <code style="color: var(--accent-cyan); font-family: var(--font-mono);">SHA-256(previous_hash || entry_data)</code>. 
+                PostgreSQL triggers reject direct UPDATE, DELETE, and TRUNCATE.
+              </p>
+            </div>
+            <button class="btn btn-primary" onclick="TrustApp.verifyAuditChain()" id="verifyChainBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Verify Cryptographic Chain
+            </button>
+          </div>
+
+          <div id="chainStatusBox" style="margin-top: 1rem;">
+            <div class="chain-status-badge intact">
+              <span>●</span> SHA-256 Chain Verification Ready — Click to verify
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Sub-tabs -->
+        <div class="auth-tabs" style="max-width: 400px; margin-bottom: 1.5rem;">
+          <button class="auth-tab-btn active" id="adminTabLogsBtn" onclick="TrustApp.switchAdminSubTab('logs')">Audit Logs</button>
+          <button class="auth-tab-btn" id="adminTabUsersBtn" onclick="TrustApp.switchAdminSubTab('users')">User Directory</button>
+        </div>
+
+        <!-- Sub-tab 1: Audit Logs -->
+        <div id="adminSubLogs">
+          <div class="toolbar">
+            <div class="search-filter-group" style="flex-wrap: wrap;">
+              <select id="logActionFilter" class="category-select" onchange="TrustApp.loadAuditLogs()">
+                <option value="">All Actions</option>
+                <option value="login">login</option>
+                <option value="upload">upload</option>
+                <option value="read">read</option>
+                <option value="download">download</option>
+                <option value="edit">edit</option>
+                <option value="delete">delete</option>
+                <option value="grant">grant</option>
+                <option value="revoke">revoke</option>
+                <option value="admin_access">admin_access</option>
+                <option value="deactivate_user">deactivate_user</option>
+                <option value="activate_user">activate_user</option>
+              </select>
+
+              <select id="logResultFilter" class="category-select" onchange="TrustApp.loadAuditLogs()">
+                <option value="">All Results</option>
+                <option value="allowed">Allowed Only</option>
+                <option value="refused">Refused Only</option>
+              </select>
+            </div>
+
+            <button class="btn btn-sm btn-secondary" onclick="TrustApp.loadAuditLogs()">
+              Refresh Logs
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Timestamp</th>
+                  <th>Actor</th>
+                  <th>Action</th>
+                  <th>Target Doc</th>
+                  <th>Result</th>
+                  <th>Audit Details</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogsTbody">
+                <tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 2rem;">Loading audit trail...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sub-tab 2: User Directory -->
+        <div id="adminSubUsers" style="display: none;">
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Registered</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="userListTbody">
+                <tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 2rem;">Loading user directory...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL 1: Document Upload -->
+  <div id="uploadModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Deposit Document into Vault</h3>
+        <button class="modal-close" onclick="TrustApp.closeModal('uploadModal')">✕</button>
+      </div>
+
+      <form id="uploadForm" onsubmit="TrustApp.handleUpload(event)">
+        <!-- Drag & Drop Zone -->
+        <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+          <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <div style="font-weight: 600; margin-bottom: 0.25rem;">Choose a file or drag & drop here</div>
+          <div style="font-size: 0.75rem; color: var(--text-dim);">
+            Allowed: PDF, PNG, JPEG, UTF-8 text (Max 5 MB).<br>
+            Client verifies cryptographic signatures before transmission.
+          </div>
+          <input type="file" id="fileInput" style="display: none;" onchange="TrustApp.handleFileSelect(event)">
+        </div>
+
+        <div id="fileValidationStatus" style="display: none; margin-bottom: 1rem;"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="uploadTitle">Document Title</label>
+          <input type="text" id="uploadTitle" class="form-input" placeholder="e.g. Master Services Agreement 2026" required maxlength="200">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="uploadCategory">Category</label>
+          <select id="uploadCategory" class="form-input">
+            <option value="general">General</option>
+            <option value="contracts">Contracts</option>
+            <option value="hr">HR</option>
+            <option value="financial">Financial</option>
+            <option value="legal">Legal</option>
+          </select>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="TrustApp.closeModal('uploadModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">Upload Document</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Sandboxed Document Preview -->
+  <div id="previewModal" class="modal-overlay">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="previewTitle">Document Preview</h3>
+          <div id="previewMeta" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;"></div>
+        </div>
+        <button class="modal-close" onclick="TrustApp.closeModal('previewModal')">✕</button>
+      </div>
+
+      <div class="preview-container" id="previewContainer">
+        <!-- Sandboxed preview injected here -->
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem;">
+        <span style="font-size: 0.75rem; color: var(--text-dim);">
+          🛡️ Rendered with nosniff headers and sandbox isolation
+        </span>
+        <button class="btn btn-primary" id="previewDownloadBtn">
+          Download File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Access Grants Manager (Owner-only) -->
+  <div id="grantsModal" class="modal-overlay">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Access Grants & Permissions</h3>
+          <div id="grantsDocTitle" style="font-size: 0.8125rem; color: var(--accent-cyan); font-weight: 500;"></div>
+        </div>
+        <button class="modal-close" onclick="TrustApp.closeModal('grantsModal')">✕</button>
+      </div>
+
+      <!-- Add Grant Form -->
+      <form id="addGrantForm" onsubmit="TrustApp.handleAddGrant(event)" style="background: var(--bg-base); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1.5rem;">
+        <div style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem;">Delegate Document Access</div>
+        <div style="display: grid; grid-template-columns: 2fr 1.5fr 2fr auto; gap: 0.75rem; align-items: flex-end;">
+          <div>
+            <label class="form-label" for="grantUsername" style="font-size: 0.75rem;">Recipient Username</label>
+            <input type="text" id="grantUsername" class="form-input" placeholder="e.g. demo_viewer" required style="padding: 0.5rem 0.75rem;">
+          </div>
+          <div>
+            <label class="form-label" for="grantPermission" style="font-size: 0.75rem;">Permission Level</label>
+            <select id="grantPermission" class="form-input" style="padding: 0.5rem 0.75rem;">
+              <option value="read">Read Only</option>
+              <option value="edit">Edit Allowed</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="grantExpiresAt" style="font-size: 0.75rem;">Expiry (Optional)</label>
+            <input type="datetime-local" id="grantExpiresAt" class="form-input" style="padding: 0.45rem 0.5rem; font-size: 0.8125rem;">
+          </div>
+          <button type="submit" class="btn btn-primary" style="height: 38px;">
+            Grant Access
+          </button>
+        </div>
+      </form>
+
+      <!-- Active Grants List -->
+      <div style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">Current Active Grants</div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Recipient</th>
+              <th>Permission</th>
+              <th>Granted At</th>
+              <th>Expires At</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="grantsListTbody">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 1.5rem;">Loading active grants...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Edit Document Metadata -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Document Details</h3>
+        <button class="modal-close" onclick="TrustApp.closeModal('editModal')">✕</button>
+      </div>
+      <form id="editForm" onsubmit="TrustApp.handleEditDoc(event)">
+        <input type="hidden" id="editDocId">
+        <div class="form-group">
+          <label class="form-label" for="editTitle">Document Title</label>
+          <input type="text" id="editTitle" class="form-input" required maxlength="200">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editCategory">Category</label>
+          <select id="editCategory" class="form-input">
+            <option value="general">General</option>
+            <option value="contracts">Contracts</option>
+            <option value="hr">HR</option>
+            <option value="financial">Financial</option>
+            <option value="legal">Legal</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="TrustApp.closeModal('editModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Footer -->
+  <footer>
+    <div style="max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        TrustVault Platform &bull; Zero-Knowledge Existence &bull; Hash-Chained Audit Trail
+      </div>
+      <div>
+        Deployable with 1-click on <a href="https://vercel.com" target="_blank" rel="noopener">Vercel</a> &amp; <a href="https://www.netlify.com" target="_blank" rel="noopener">Netlify</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic (Safe Vanilla JavaScript, zero external runtime dependencies) -->
+  <script>
+    (function () {
+      'use strict';
+
+      // Security constants
+      const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
+      const DEFAULT_API = "https://trustvault-kw7s.onrender.com";
+      const LOCAL_STORAGE_SERVER_KEY = "trustvault_api_url";
+      const SESSION_TOKEN_KEY = "trustvault_token";
+      const SESSION_USER_KEY = "trustvault_user";
+
+      // Application State
+      let apiBase = localStorage.getItem(LOCAL_STORAGE_SERVER_KEY) || DEFAULT_API;
+      let currentUser = null;
+      let currentToken = null;
+      let cachedDocuments = [];
+      let activeGrantsDocId = null;
+      let activePreviewBlobUrl = null;
+      let searchDebounceTimer = null;
+
+      // Safe HTML escaping helper to eliminate DOM XSS
+      function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function formatBytes(bytes) {
+        if (!bytes || bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+      }
+
+      function formatDate(isoStr) {
+        if (!isoStr) return 'Never';
+        try {
+          const d = new Date(isoStr);
+          return d.toLocaleDateString(undefined, {
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          });
+        } catch {
+          return escapeHtml(isoStr);
+        }
+      }
+
+      // Toast Notifications
+      function showToast(message, type = 'info', duration = 4000) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        let icon = 'ℹ️';
+        if (type === 'success') icon = '✅';
+        if (type === 'error') icon = '❌';
+        if (type === 'warning') icon = '⚠️';
+
+        toast.innerHTML = `<span style="font-size:1.1rem">${icon}</span><div>${escapeHtml(message)}</div>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(100%)';
+          setTimeout(() => toast.remove(), 250);
+        }, duration);
+      }
+
+      // Global Authenticated Fetch with automatic error and 401 handling
+      async function authFetch(endpoint, options = {}) {
+        options.headers = options.headers || {};
+        if (currentToken) {
+          options.headers['Authorization'] = `Bearer ${currentToken}`;
+        }
+
+        const url = `${apiBase}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+        try {
+          const res = await fetch(url, options);
+
+          if (res.status === 401) {
+            // Token invalidated or expired or user deactivated
+            if (currentUser) {
+              showToast('Session expired or deactivated. Please sign in again.', 'warning');
+              logout();
+            }
+            throw new Error('Unauthorized');
+          }
+
+          if (res.status === 404) {
+            // TrustVault privacy model returns 404 to avoid leaking existence
+            throw new Error('404 Not Found (Resource does not exist or access denied)');
+          }
+
+          return res;
+        } catch (err) {
+          throw err;
+        }
+      }
+
+      // Initialize App
+      async function init() {
+        // Sync server selector
+        const select = document.getElementById('serverSelect');
+        if (apiBase === "https://trustvault-kw7s.onrender.com") {
+          select.value = "https://trustvault-kw7s.onrender.com";
+        } else if (apiBase === "http://127.0.0.1:8000") {
+          select.value = "http://127.0.0.1:8000";
+        } else {
+          select.value = "custom";
+        }
+
+        // Restore session
+        try {
+          const storedToken = sessionStorage.getItem(SESSION_TOKEN_KEY);
+          const storedUser = sessionStorage.getItem(SESSION_USER_KEY);
+          if (storedToken && storedUser) {
+            currentToken = storedToken;
+            currentUser = JSON.parse(storedUser);
+            renderUserSession();
+          }
+        } catch (e) {
+          sessionStorage.clear();
+        }
+
+        // Setup dropzone listeners
+        setupDropZone();
+
+        // Check backend health
+        checkHealth();
+
+        // If authenticated, load me and load documents
+        if (currentToken) {
+          verifySessionAndLoad();
+        }
+      }
+
+      function setupDropZone() {
+        const dropZone = document.getElementById('dropZone');
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('dragover');
+          }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('dragover');
+          }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            document.getElementById('fileInput').files = files;
+            validateAndDisplayFile(files[0]);
+          }
+        });
+      }
+
+      // Backend Health & Cold Start Detection
+      async function checkHealth(manual = false) {
+        const dot = document.getElementById('statusDot');
+        const text = document.getElementById('statusText');
+        const notice = document.getElementById('renderNotice');
+
+        dot.className = 'status-dot waking';
+        text.textContent = 'Connecting...';
+
+        const startTime = Date.now();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s max for Render cold start
+
+        try {
+          const res = await fetch(`${apiBase}/health`, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          const elapsed = Date.now() - startTime;
+
+          if (res.ok) {
+            dot.className = 'status-dot online';
+            text.textContent = `Online (${elapsed}ms)`;
+            notice.classList.add('hidden');
+            if (manual) showToast(`Backend connected in ${elapsed}ms`, 'success');
+          } else {
+            throw new Error(`HTTP ${res.status}`);
+          }
+        } catch (err) {
+          clearTimeout(timeoutId);
+          dot.className = 'status-dot offline';
+          text.textContent = 'Offline / Cold';
+
+          if (apiBase.includes('onrender.com')) {
+            notice.classList.remove('hidden');
+          }
+          if (manual) showToast('Could not reach backend health endpoint: ' + err.message, 'error');
+        }
+      }
+
+      function changeServer(val) {
+        if (val === 'custom') {
+          const custom = prompt('Enter custom TrustVault API base URL (e.g. http://127.0.0.1:8000):', apiBase);
+          if (custom && custom.trim()) {
+            apiBase = custom.trim().replace(/\/+$/, '');
+            localStorage.setItem(LOCAL_STORAGE_SERVER_KEY, apiBase);
+          } else {
+            document.getElementById('serverSelect').value = apiBase;
+            return;
+          }
+        } else {
+          apiBase = val;
+          localStorage.setItem(LOCAL_STORAGE_SERVER_KEY, apiBase);
+        }
+        document.getElementById('apiDocsBtn').href = `${apiBase}/docs`;
+        showToast(`Target endpoint updated: ${apiBase}`, 'info');
+        checkHealth(true);
+      }
+
+      function dismissNotice() {
+        document.getElementById('renderNotice').classList.add('hidden');
+      }
+
+      // Auth Views and Tabs
+      function switchAuthTab(tab) {
+        const isLogin = tab === 'login';
+        document.getElementById('tabLoginBtn').classList.toggle('active', isLogin);
+        document.getElementById('tabRegisterBtn').classList.toggle('active', !isLogin);
+        document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+      }
+
+      function fillDemo(user, pw) {
+        switchAuthTab('login');
+        document.getElementById('loginUsername').value = user;
+        document.getElementById('loginPassword').value = pw;
+        showToast(`Filled credentials for ${user}`, 'info');
+      }
+
+      async function handleLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const btn = document.getElementById('loginSubmitBtn');
+
+        btn.disabled = true;
+        btn.textContent = 'Authenticating...';
+
+        try {
+          const res = await fetch(`${apiBase}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            if (res.status === 429) {
+              throw new Error('Account or IP temporarily locked due to too many failed attempts (15m lockout)');
+            }
+            throw new Error(err.detail || 'Invalid username or password');
+          }
+
+          const data = await res.json();
+          currentToken = data.access_token;
+          sessionStorage.setItem(SESSION_TOKEN_KEY, currentToken);
+
+          // Fetch profile info
+          const meRes = await authFetch('/auth/me');
+          if (meRes.ok) {
+            currentUser = await meRes.json();
+            sessionStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser));
+            renderUserSession();
+            showToast(`Welcome back, ${currentUser.username}!`, 'success');
+            loadDocuments();
+          }
+        } catch (err) {
+          showToast(err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Authenticate Session';
+        }
+      }
+
+      async function handleRegister(e) {
+        e.preventDefault();
+        const username = document.getElementById('regUsername').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const btn = document.getElementById('regSubmitBtn');
+
+        btn.disabled = true;
+        btn.textContent = 'Registering...';
+
+        try {
+          const res = await fetch(`${apiBase}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Registration failed');
+          }
+
+          showToast('Account created successfully! Please sign in.', 'success');
+          switchAuthTab('login');
+          document.getElementById('loginUsername').value = username;
+          document.getElementById('loginPassword').value = '';
+          document.getElementById('loginPassword').focus();
+        } catch (err) {
+          showToast(err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Create Account';
+        }
+      }
+
+      async function verifySessionAndLoad() {
+        try {
+          const res = await authFetch('/auth/me');
+          if (res.ok) {
+            currentUser = await res.json();
+            sessionStorage.setItem(SESSION_USER_KEY, JSON.stringify(currentUser));
+            renderUserSession();
+            loadDocuments();
+          } else {
+            logout();
+          }
+        } catch (e) {
+          logout();
+        }
+      }
+
+      function renderUserSession() {
+        if (!currentUser) return;
+
+        document.getElementById('authView').classList.remove('active');
+        document.getElementById('dashboardView').classList.add('active');
+
+        const pill = document.getElementById('userPill');
+        pill.style.display = 'flex';
+        document.getElementById('usernameDisplay').textContent = currentUser.username;
+        
+        const roleBadge = document.getElementById('roleDisplay');
+        roleBadge.textContent = currentUser.role.toUpperCase();
+        roleBadge.className = `role-badge ${currentUser.role}`;
+
+        // Show Admin tab if admin
+        const adminTab = document.getElementById('tabAdmin');
+        if (currentUser.role === 'admin') {
+          adminTab.style.display = 'flex';
+        } else {
+          adminTab.style.display = 'none';
+        }
+      }
+
+      async function logout() {
+        if (currentToken) {
+          try {
+            await authFetch('/auth/logout', { method: 'POST' });
+          } catch (e) {
+            // Ignore error on logout
+          }
+        }
+        currentToken = null;
+        currentUser = null;
+        sessionStorage.removeItem(SESSION_TOKEN_KEY);
+        sessionStorage.removeItem(SESSION_USER_KEY);
+
+        document.getElementById('userPill').style.display = 'none';
+        document.getElementById('dashboardView').classList.remove('active');
+        document.getElementById('authView').classList.add('active');
+        showToast('Logged out of secure vault.', 'info');
+      }
+
+      // Dashboard View Switching
+      function switchDashboardTab(tab) {
+        document.getElementById('tabDocs').classList.toggle('active', tab === 'docs');
+        document.getElementById('tabAdmin').classList.toggle('active', tab === 'admin');
+
+        document.getElementById('subViewDocs').style.display = tab === 'docs' ? 'block' : 'none';
+        document.getElementById('subViewAdmin').style.display = tab === 'admin' ? 'block' : 'none';
+
+        if (tab === 'docs') {
+          loadDocuments();
+        } else if (tab === 'admin') {
+          loadAuditLogs();
+        }
+      }
+
+      function switchAdminSubTab(sub) {
+        const isLogs = sub === 'logs';
+        document.getElementById('adminTabLogsBtn').classList.toggle('active', isLogs);
+        document.getElementById('adminTabUsersBtn').classList.toggle('active', !isLogs);
+        document.getElementById('adminSubLogs').style.display = isLogs ? 'block' : 'none';
+        document.getElementById('adminSubUsers').style.display = isLogs ? 'none' : 'block';
+
+        if (isLogs) {
+          loadAuditLogs();
+        } else {
+          loadUsers();
+        }
+      }
+
+      function refreshCurrentView() {
+        if (document.getElementById('subViewAdmin').style.display === 'block') {
+          if (document.getElementById('adminSubLogs').style.display === 'block') {
+            loadAuditLogs();
+          } else {
+            loadUsers();
+          }
+        } else {
+          loadDocuments();
+        }
+        showToast('Refreshed data.', 'info', 2000);
+      }
+
+      // ============================================
+      // DOCUMENT ACTIONS & SECURITY VERIFICATION
+      // ============================================
+
+      // Client-Side Pre-Validation of Magic Bytes & Size
+      async function validateAndDisplayFile(file) {
+        const statusBox = document.getElementById('fileValidationStatus');
+        statusBox.style.display = 'block';
+
+        if (file.size > MAX_UPLOAD_BYTES) {
+          statusBox.innerHTML = `
+            <div class="file-validation-badge invalid">
+              ❌ File exceeds 5 MB limit (${formatBytes(file.size)}). Upload rejected locally.
+            </div>`;
+          document.getElementById('uploadSubmitBtn').disabled = true;
+          return false;
+        }
+
+        // Check magic bytes using ArrayBuffer
+        const buffer = await file.slice(0, 16).arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+
+        let detectedType = null;
+        // PDF: %PDF- (0x25 0x50 0x44 0x46 0x2D)
+        if (bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2D) {
+          detectedType = 'application/pdf';
+        }
+        // PNG: 89 50 4E 47 0D 0A 1A 0A
+        else if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) {
+          detectedType = 'image/png';
+        }
+        // JPEG: FF D8 FF
+        else if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) {
+          detectedType = 'image/jpeg';
+        } else {
+          // Check if valid UTF-8 text without null bytes
+          try {
+            const textCheckBuffer = await file.slice(0, 2048).arrayBuffer();
+            const textBytes = new Uint8Array(textCheckBuffer);
+            let hasNull = false;
+            for (let i = 0; i < textBytes.length; i++) {
+              if (textBytes[i] === 0) { hasNull = true; break; }
+            }
+            if (!hasNull) {
+              detectedType = 'text/plain';
+            }
+          } catch (e) {
+            detectedType = null;
+          }
+        }
+
+        if (!detectedType) {
+          statusBox.innerHTML = `
+            <div class="file-validation-badge invalid">
+              ❌ File type not allowed. TrustVault strictly permits PDF, PNG, JPEG, and plain UTF-8 text. Magic bytes check failed.
+            </div>`;
+          document.getElementById('uploadSubmitBtn').disabled = true;
+          return false;
+        }
+
+        statusBox.innerHTML = `
+          <div class="file-validation-badge valid">
+            ✅ Validated Header: <strong>${escapeHtml(detectedType)}</strong> (${formatBytes(file.size)})
+          </div>`;
+        document.getElementById('uploadSubmitBtn').disabled = false;
+
+        // Auto-fill title if empty
+        const titleInput = document.getElementById('uploadTitle');
+        if (!titleInput.value) {
+          titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+        }
+        return true;
+      }
+
+      function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) validateAndDisplayFile(file);
+      }
+
+      function openUploadModal() {
+        document.getElementById('uploadForm').reset();
+        document.getElementById('fileValidationStatus').style.display = 'none';
+        document.getElementById('uploadSubmitBtn').disabled = false;
+        openModal('uploadModal');
+      }
+
+      async function handleUpload(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('fileInput');
+        if (!fileInput.files || fileInput.files.length === 0) {
+          showToast('Please select a file to upload.', 'warning');
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const isValid = await validateAndDisplayFile(file);
+        if (!isValid) return;
+
+        const title = document.getElementById('uploadTitle').value.trim();
+        const category = document.getElementById('uploadCategory').value;
+        const btn = document.getElementById('uploadSubmitBtn');
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('title', title);
+        formData.append('category', category);
+
+        btn.disabled = true;
+        btn.textContent = 'Encrypting & Depositing...';
+
+        try {
+          const res = await authFetch('/documents', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Upload rejected by server');
+          }
+
+          const doc = await res.json();
+          showToast(`Document "${doc.title}" deposited securely!`, 'success');
+          closeModal('uploadModal');
+          loadDocuments();
+        } catch (err) {
+          showToast(err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Upload Document';
+        }
+      }
+
+      // Load Document Listing
+      async function loadDocuments() {
+        const container = document.getElementById('docsList');
+        const empty = document.getElementById('docsEmpty');
+        const query = document.getElementById('docSearchInput').value.trim();
+        const category = document.getElementById('docCategoryFilter').value;
+
+        let url = '/documents';
+        const params = new URLSearchParams();
+        if (query) params.append('q', query);
+        if (category) params.append('category', category);
+        if (params.toString()) url += `?${params.toString()}`;
+
+        try {
+          const res = await authFetch(url);
+          if (!res.ok) throw new Error('Could not retrieve documents');
+
+          cachedDocuments = await res.json();
+          renderDocumentCards(cachedDocuments);
+        } catch (err) {
+          container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--accent-crimson); padding: 2rem;">Error: ${escapeHtml(err.message)}</div>`;
+        }
+      }
+
+      function debounceSearch() {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+          loadDocuments();
+        }, 300);
+      }
+
+      function renderDocumentCards(docs) {
+        const container = document.getElementById('docsList');
+        const empty = document.getElementById('docsEmpty');
+
+        if (!docs || docs.length === 0) {
+          container.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+
+        empty.style.display = 'none';
+        container.innerHTML = docs.map(doc => {
+          const isOwner = currentUser && doc.owner_id === currentUser.id;
+          const mime = doc.content_type || 'application/octet-stream';
+          let iconSvg = '';
+
+          if (mime.includes('pdf')) {
+            iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`;
+          } else if (mime.includes('image')) {
+            iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+          } else {
+            iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>`;
+          }
+
+          return `
+            <div class="doc-card" id="doc-card-${doc.id}">
+              <div>
+                <div class="doc-header">
+                  <div class="doc-title">${escapeHtml(doc.title)}</div>
+                  <div class="doc-type-icon">${iconSvg}</div>
+                </div>
+
+                <div class="doc-meta">
+                  <span class="badge badge-category">${escapeHtml(doc.category)}</span>
+                  <span class="badge ${isOwner ? 'badge-owner' : 'badge-shared'}">
+                    ${isOwner ? 'Owned by you' : 'Shared grant'}
+                  </span>
+                  <span>${formatBytes(doc.size)}</span>
+                  <span>&bull;</span>
+                  <span>${formatDate(doc.created_at)}</span>
+                </div>
+              </div>
+
+              <div class="doc-actions">
+                <button class="btn btn-sm btn-secondary" onclick="TrustApp.previewDoc(${doc.id})" title="Sandboxed Inline View">
+                  Preview
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="TrustApp.downloadDoc(${doc.id}, '${escapeHtml(doc.original_name)}')" title="Download Document">
+                  Download
+                </button>
+                ${isOwner ? `
+                  <button class="btn btn-sm btn-secondary" onclick="TrustApp.manageGrants(${doc.id}, '${escapeHtml(doc.title)}')" title="Manage Access Grants">
+                    Grants
+                  </button>
+                  <button class="btn btn-sm btn-secondary" onclick="TrustApp.editDocModal(${doc.id}, '${escapeHtml(doc.title)}', '${escapeHtml(doc.category)}')" title="Edit Title/Category">
+                    Edit
+                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="TrustApp.deleteDoc(${doc.id})" title="Soft-delete Document">
+                    Delete
+                  </button>
+                ` : `
+                  <button class="btn btn-sm btn-secondary" onclick="TrustApp.editDocModal(${doc.id}, '${escapeHtml(doc.title)}', '${escapeHtml(doc.category)}')" title="Edit if you hold edit grant">
+                    Edit
+                  </button>
+                `}
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      // Secure Sandboxed Document Preview
+      async function previewDoc(docId) {
+        const doc = cachedDocuments.find(d => d.id === docId);
+        if (!doc) return;
+
+        document.getElementById('previewTitle').textContent = doc.title;
+        document.getElementById('previewMeta').textContent = `${doc.original_name} &bull; ${doc.content_type} &bull; ${formatBytes(doc.size)}`;
+        
+        const container = document.getElementById('previewContainer');
+        container.innerHTML = '<div style="color: var(--text-dim);">Downloading document into secure memory buffer...</div>';
+        
+        openModal('previewModal');
+
+        // Set download button
+        const dlBtn = document.getElementById('previewDownloadBtn');
+        dlBtn.onclick = () => downloadDoc(doc.id, doc.original_name);
+
+        try {
+          const res = await authFetch(`/documents/${docId}/download`);
+          if (!res.ok) throw new Error('Preview access refused or document unavailable');
+
+          const blob = await res.blob();
+          if (activePreviewBlobUrl) {
+            URL.revokeObjectURL(activePreviewBlobUrl);
+          }
+          activePreviewBlobUrl = URL.createObjectURL(blob);
+
+          if (doc.content_type.startsWith('image/')) {
+            container.innerHTML = `<img src="${activePreviewBlobUrl}" alt="${escapeHtml(doc.title)}" loading="lazy">`;
+          } else if (doc.content_type === 'application/pdf') {
+            container.innerHTML = `<iframe src="${activePreviewBlobUrl}#toolbar=0" sandbox="allow-scripts" title="Sandboxed PDF View"></iframe>`;
+          } else {
+            // Text or plain file
+            const text = await blob.text();
+            const pre = document.createElement('pre');
+            pre.textContent = text; // Strict textContent escaping!
+            container.innerHTML = '';
+            container.appendChild(pre);
+          }
+        } catch (err) {
+          container.innerHTML = `<div style="color: var(--accent-crimson); text-align: center;">Unable to preview: ${escapeHtml(err.message)}</div>`;
+        }
+      }
+
+      // Secure Download Handler
+      async function downloadDoc(docId, originalName) {
+        try {
+          showToast('Preparing download...', 'info', 2000);
+          const res = await authFetch(`/documents/${docId}/download`);
+          if (!res.ok) throw new Error('Download refused');
+
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = originalName || `document_${docId}`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 1000);
+          showToast('Download started', 'success');
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      }
+
+      // Edit Document Modal
+      function editDocModal(id, title, category) {
+        document.getElementById('editDocId').value = id;
+        document.getElementById('editTitle').value = title;
+        document.getElementById('editCategory').value = category;
+        openModal('editModal');
+      }
+
+      async function handleEditDoc(e) {
+        e.preventDefault();
+        const id = document.getElementById('editDocId').value;
+        const title = document.getElementById('editTitle').value.trim();
+        const category = document.getElementById('editCategory').value;
+
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('category', category);
+
+        try {
+          const res = await authFetch(`/documents/${id}`, {
+            method: 'PATCH',
+            body: formData
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Edit refused: insufficient permissions');
+          }
+
+          showToast('Document metadata updated.', 'success');
+          closeModal('editModal');
+          loadDocuments();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      }
+
+      // Delete Document (Owner-only soft-delete)
+      async function deleteDoc(docId) {
+        if (!confirm('Are you sure you want to delete this document? The file will be soft-deleted and the immutable audit trail will be recorded.')) {
+          return;
+        }
+
+        try {
+          const res = await authFetch(`/documents/${docId}`, {
+            method: 'DELETE'
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Delete refused');
+          }
+
+          showToast('Document soft-deleted.', 'success');
+          loadDocuments();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      }
+
+      // ============================================
+      // GRANTS MANAGEMENT (Owner-only)
+      // ============================================
+
+      function manageGrants(docId, title) {
+        activeGrantsDocId = docId;
+        document.getElementById('grantsDocTitle').textContent = `Document: "${title}" (ID: ${docId})`;
+        document.getElementById('addGrantForm').reset();
+        openModal('grantsModal');
+        loadGrants(docId);
+      }
+
+      async function loadGrants(docId) {
+        const tbody = document.getElementById('grantsListTbody');
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 1.5rem;">Loading active grants...</td></tr>';
+
+        try {
+          const res = await authFetch(`/documents/${docId}/grants`);
+          if (!res.ok) throw new Error('Could not load grants');
+
+          const grants = await res.json();
+          if (grants.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No active external grants. Only you can access this file.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = grants.map(g => `
+            <tr>
+              <td><strong>${escapeHtml(g.username)}</strong></td>
+              <td><span class="badge ${g.permission === 'edit' ? 'badge-owner' : 'badge-shared'}">${escapeHtml(g.permission.toUpperCase())}</span></td>
+              <td>${formatDate(g.created_at)}</td>
+              <td>${g.expires_at ? formatDate(g.expires_at) : '<span style="color:var(--text-dim)">Never</span>'}</td>
+              <td>
+                <button class="btn btn-sm btn-danger" onclick="TrustApp.revokeGrant(${g.id})">
+                  Revoke
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        } catch (err) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--accent-crimson); padding: 1.5rem;">${escapeHtml(err.message)}</td></tr>`;
+        }
+      }
+
+      async function handleAddGrant(e) {
+        e.preventDefault();
+        if (!activeGrantsDocId) return;
+
+        const username = document.getElementById('grantUsername').value.trim();
+        const permission = document.getElementById('grantPermission').value;
+        const expiresVal = document.getElementById('grantExpiresAt').value;
+
+        const payload = {
+          username: username,
+          permission: permission
+        };
+
+        if (expiresVal) {
+          payload.expires_at = new Date(expiresVal).toISOString();
+        }
+
+        try {
+          const res = await authFetch(`/documents/${activeGrantsDocId}/grants`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Grant failed');
+          }
+
+          showToast(`Access granted to ${username}!`, 'success');
+          document.getElementById('grantUsername').value = '';
+          document.getElementById('grantExpiresAt').value = '';
+          loadGrants(activeGrantsDocId);
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      }
+
+      async function revokeGrant(grantId) {
+        if (!confirm('Revoke access immediately? The recipient will lose access on their very next request.')) {
+          return;
+        }
+
+        try {
+          const res = await authFetch(`/documents/${activeGrantsDocId}/grants/${grantId}`, {
+            method: 'DELETE'
+          });
+
+          if (!res.ok) throw new Error('Revocation failed');
+
+          showToast('Grant revoked instantaneously.', 'success');
+          loadGrants(activeGrantsDocId);
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      }
+
+      // ============================================
+      // ADMIN OPERATIONS (Audit Chain & Users)
+      // ============================================
+
+      async function verifyAuditChain() {
+        const btn = document.getElementById('verifyChainBtn');
+        const box = document.getElementById('chainStatusBox');
+        btn.disabled = true;
+        btn.textContent = 'Verifying SHA-256 Hashes...';
+
+        try {
+          const res = await authFetch('/admin/audit/verify');
+          if (!res.ok) throw new Error('Verification request refused');
+
+          const data = await res.json();
+          if (data.intact) {
+            box.innerHTML = `
+              <div class="chain-status-badge intact">
+                ✅ Cryptographic Hash Chain is 100% INTACT & Untampered.
+              </div>
+              <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">
+                All sequential rows match their SHA-256 parent link. Database immutability triggers are verified.
+              </p>`;
+            showToast('Audit trail verified: Cryptographic chain is intact!', 'success');
+          } else {
+            box.innerHTML = `
+              <div class="chain-status-badge broken">
+                ⚠️ TAMPER DETECTED! First corrupt row ID: #${data.first_bad_row_id}
+              </div>
+              <p style="font-size:0.75rem; color:var(--accent-crimson); margin-top:0.4rem;">
+                Discrepancy detected between parent and child SHA-256 hashes at row #${data.first_bad_row_id}.
+              </p>`;
+            showToast(`ALERT: Tamper detected at row #${data.first_bad_row_id}!`, 'error', 6000);
+          }
+        } catch (err) {
+          box.innerHTML = `<div class="chain-status-badge broken">Verification failed: ${escapeHtml(err.message)}</div>`;
+          showToast(err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Verify Cryptographic Chain';
+        }
+      }
+
+      async function loadAuditLogs() {
+        const tbody = document.getElementById('auditLogsTbody');
+        const action = document.getElementById('logActionFilter').value;
+        const result = document.getElementById('logResultFilter').value;
+
+        let url = '/admin/activity?limit=150';
+        if (action) url += `&action=${encodeURIComponent(action)}`;
+        if (result) url += `&result=${encodeURIComponent(result)}`;
+
+        try {
+          const res = await authFetch(url);
+          if (!res.ok) throw new Error('Failed to load audit logs');
+
+          const logs = await res.json();
+          if (logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:2rem;">No audit logs matching query.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = logs.map(l => {
+            const isRefused = l.result === 'refused';
+            return `
+              <tr>
+                <td style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-dim);">#${l.id}</td>
+                <td style="font-size:0.8125rem;">${formatDate(l.time)}</td>
+                <td><span style="font-family:var(--font-mono); color:var(--accent-cyan); font-weight:600;">Actor #${l.actor_id ?? 'None'}</span></td>
+                <td><code style="font-family:var(--font-mono); color:var(--text-main);">${escapeHtml(l.action)}</code></td>
+                <td>${l.document_id ? `<span style="font-family:var(--font-mono);">Doc #${l.document_id}</span>` : '<span style="color:var(--text-dim);">-</span>'}</td>
+                <td>
+                  <span class="result-pill ${isRefused ? 'refused' : 'allowed'}">
+                    ${escapeHtml(l.result)}
+                  </span>
+                </td>
+                <td style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); max-width:260px; word-break:break-word;">
+                  ${escapeHtml(l.details || '-')}
+                </td>
+              </tr>`;
+          }).join('');
+        } catch (err) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--accent-crimson); padding:2rem;">${escapeHtml(err.message)}</td></tr>`;
+        }
+      }
+
+      async function loadUsers() {
+        const tbody = document.getElementById('userListTbody');
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-dim); padding:2rem;">Loading users...</td></tr>';
+
+        try {
+          const res = await authFetch('/admin/users');
+          if (!res.ok) throw new Error('Failed to load user directory');
+
+          const users = await res.json();
+          tbody.innerHTML = users.map(u => {
+            const isSelf = currentUser && u.id === currentUser.id;
+            return `
+              <tr>
+                <td style="font-family:var(--font-mono); color:var(--text-dim);">#${u.id}</td>
+                <td><strong>${escapeHtml(u.username)}</strong> ${isSelf ? '<span style="font-size:0.75rem; color:var(--accent-cyan);">(You)</span>' : ''}</td>
+                <td>
+                  <span class="role-badge ${u.role}">${escapeHtml(u.role)}</span>
+                </td>
+                <td>
+                  <span class="badge ${u.is_active ? 'badge-owner' : 'btn-danger'}">
+                    ${u.is_active ? 'ACTIVE' : 'DEACTIVATED'}
+                  </span>
+                </td>
+                <td>${formatDate(u.created_at)}</td>
+                <td>
+                  ${isSelf ? '<span style="font-size:0.75rem; color:var(--text-dim);">Protected (Self)</span>' : `
+                    <div style="display:flex; gap:0.5rem;">
+                      ${u.is_active ? `
+                        <button class="btn btn-sm btn-danger" onclick="TrustApp.toggleUserStatus(${u.id}, false)">
+                          Deactivate
+                        </button>
+                      ` : `
+                        <button class="btn btn-sm btn-success" onclick="TrustApp.toggleUserStatus(${u.id}, true)">
+                          Activate
+                        </button>
+                      `}
+                      <button class="btn btn-sm btn-secondary" onclick="TrustApp.toggleUserRole(${u.id}, '${u.role === 'admin' ? 'user' : 'admin'}')">
+                        Make ${u.role === 'admin' ? 'User' : 'Admin'}
+                      </button>
+                    </div>
+                  `}
+                </td>
+              </tr>`;
+          }).join('');
+        } catch (err) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--accent-crimson); padding:2rem;">${escapeHtml(err.message)}</td></tr>`;
+        }
+      }
+
+      async function toggleUserStatus(userId, activate) {
+        const action = activate ? 'activate' : 'deactivate';
+        if (!confirm(`Are you sure you want to ${action} this user? Deactivation terminates active sessions immediately.`)) {
+          return;
+        }
+
+        try {
+          const res = await authFetch(`/admin/users/${userId}/${action}`, { method: 'POST' });
+          if (!res.ok) throw new Error(`${action} failed`);
+
+          showToast(`User #${userId} ${activate ? 'activated' : 'deactivated'}.`, 'success');
+          loadUsers();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      }
+
+      async function toggleUserRole(userId, newRole) {
+        if (!confirm(`Change role of user #${userId} to "${newRole}"?`)) return;
+
+        try {
+          const res = await authFetch(`/admin/users/${userId}/role`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role: newRole })
+          });
+
+          if (!res.ok) throw new Error('Role change failed');
+
+          showToast(`User role updated to ${newRole}.`, 'success');
+          loadUsers();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      }
+
+      // Modal helpers
+      function openModal(id) {
+        document.getElementById(id).classList.add('active');
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+        if (id === 'previewModal' && activePreviewBlobUrl) {
+          URL.revokeObjectURL(activePreviewBlobUrl);
+          activePreviewBlobUrl = null;
+        }
+      }
+
+      // Expose to window namespace
+      window.TrustApp = {
+        checkHealth,
+        changeServer,
+        dismissNotice,
+        switchAuthTab,
+        fillDemo,
+        handleLogin,
+        handleRegister,
+        logout,
+        switchDashboardTab,
+        switchAdminSubTab,
+        refreshCurrentView,
+        openUploadModal,
+        handleFileSelect,
+        handleUpload,
+        loadDocuments,
+        debounceSearch,
+        previewDoc,
+        downloadDoc,
+        editDocModal,
+        handleEditDoc,
+        deleteDoc,
+        manageGrants,
+        handleAddGrant,
+        revokeGrant,
+        verifyAuditChain,
+        loadAuditLogs,
+        loadUsers,
+        toggleUserStatus,
+        toggleUserRole,
+        closeModal
+      };
+
+      // Bootstrap on DOMContentLoaded
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>
