@@ -94,3 +94,36 @@
 **What was wrong:** `GET /documents/99999999999999999999` returned 500 on the live Postgres, while the local SQLite tests passed. My first fix covered documents and grants but missed the admin routes, which I noticed from `git status` showing admin.py absent from the commit.
 
 **What I did instead:** Bounded IDs with `Path(ge=1, le=2147483647)` and bounded the admin filters. On the live site the calls now return 422. Commits: https://github.com/SKAbdurRahman/TrustVault/commit/a939a22 and https://github.com/SKAbdurRahman/TrustVault/commit/d096ff8
+
+
+## Entry 10: 5 Nov 2026: deploy-hang fix had the timeout in the wrong place
+
+**Asked:** AI to help stop a Render deploy that hung for 18m 30s with no output (Port scan timeout).
+
+**It produced:** A `SET lock_timeout` in `scripts/setup_db.py` placed after the line that applies the trigger SQL, and a threat note that stated the cause as a lock held by another connection.
+
+**What was wrong:** The timeout ran after the SQL it was meant to protect, so it protected nothing. The note also claimed a cause I never confirmed: the hang happened once and a manual redeploy worked.
+
+**What I did instead:** Moved `SET lock_timeout = '30s'` before the trigger SQL, added a 10-second `connect_timeout` for Postgres in `app/db.py`, and rewrote T23 as "cause not confirmed, mitigated". Commits: https://github.com/SKAbdurRahman/TrustVault/commit/afc192a and https://github.com/SKAbdurRahman/TrustVault/commit/c544a08
+
+
+## Entry 11: 6 Nov 2026: web app shipped with open CORS and a CSP that allowed everything
+
+**Asked:** AI to add a web front end I could deploy to Netlify.
+
+**It produced:** `index.html` plus Vercel and Netlify configs, with `allow_origins=["*"]` combined with `allow_credentials=True`, a Content-Security-Policy whose `connect-src` ended with `https:`, and a deployment guide saying the policy restricts external network connections.
+
+**What was wrong:** `*` lets any website call the API from a browser. `https:` lets the page talk to any HTTPS site, which made the Render allow-list meaningless, so the guide overclaimed. It also left config files for Vercel, which I don't use.
+
+**What I did instead:** Restricted CORS to my Netlify URL and local dev, removed `https:` and `localhost:*` from `connect-src`, deleted the unused Vercel and duplicate header files, and added a test that an unknown origin gets no CORS header. Then I logged in from the live Netlify site to confirm it still worked. Commit: <paste the commit link after you push>
+
+
+## Entry 12: 7 Nov 2026: live database URL in the README
+
+**Asked:** AI to document the trigger-verification script in the README.
+
+**It produced:** A README line telling readers to set `VERIFY_DB_URL`, followed by a full connection string with the username and password.
+
+**What was wrong:** The repo is public, so anyone could read and use the credentials for my database.
+
+**What I did instead:** Replaced the line with a placeholder, created a new database credential in Render, pointed `DATABASE_URL` at it, and confirmed the app worked on it (health check, login, and the old credential showing 0 open connections). Then I deleted the old credential and ran `git grep` for leftovers. Because the old password stays in git history, I rotated it instead of only deleting the line.
