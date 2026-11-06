@@ -12,7 +12,10 @@ app = FastAPI(title="TrustVault")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+    "https://frabjous-puppy-0abe47.netlify.app",
+    "http://127.0.0.1:8000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,4 +38,4 @@ def health():
 def root():
     if os.path.isfile(INDEX_HTML_PATH):
         return FileResponse(INDEX_HTML_PATH, media_type="text/html")
-    return RedirectResponse(url="/docs")
+    return RedirectResponse(url="/docs")
