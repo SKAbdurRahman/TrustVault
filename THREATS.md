@@ -159,16 +159,8 @@ Owner saw both demo documents. Viewer saw only the shared one; downloading it re
 - Lockout can be used against a known username (it expires after 15 minutes), and `X-Forwarded-For` can be faked, so the per-IP limit is best-effort (see T8)
 - Free-tier disk is wiped on redeploy, so real uploads are lost (see T17)
 - Tests run on SQLite while production runs Postgres (see T22), so some bugs only show live
-- A deploy hung once, cause unconfirmed (see T23)” so it matches the new T23 wording
-
-
-
-
-
-
-
-
-
-
-
-
+- A deploy hung once, cause unconfirmed (see T23)
+- The Content-Security-Policy still allows `'unsafe-inline'` because `index.html` uses inline script and styles, so it limits where the page can connect but does not block injected inline script
+- The demo accounts and their passwords are visible in `index.html` on purpose, so the demo can log in with one click; they are not real accounts and hold no real data
+- CORS allows only the Netlify site and local development, so deploying the front end at another address needs a code change in `app/main.py`
+- The free-tier backend sleeps when idle, so the first request after a pause takes about 45 seconds
