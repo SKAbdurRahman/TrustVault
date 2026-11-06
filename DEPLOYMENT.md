@@ -1,34 +1,11 @@
-# TrustVault Deployment Guide: Vercel & Netlify
+# TrustVault Deployment Guide: Netlify
 
-TrustVault includes a zero-dependency, advanced, secure single-page web application (`index.html`) engineered for 1-click deployment on static & JAMstack hosting platforms such as **Vercel** and **Netlify**.
+TrustVault includes a zero-dependency, advanced, secure single-page web application (`index.html`) engineered for 1-click deployment on static & JAMstack hosting platforms such as  **Netlify**.
 
----
+**Live site:** [https://frabjous-puppy-0abe47.netlify.app](https://frabjous-puppy-0abe47.netlify.app/)
 
-## 1. Deploying to Vercel
 
-### Option A: Via Vercel Web Dashboard (1-Click Import)
-1. Push your repository to GitHub / GitLab / Bitbucket.
-2. Go to [vercel.com/new](https://vercel.com/new).
-3. Import your **TrustVault** repository.
-4. In the Project Configuration:
-   - **Framework Preset**: *Other*
-   - **Root Directory**: `./` (default)
-   - **Build Command**: *Leave blank* (no build step required)
-   - **Output Directory**: *Leave blank* (root directory with `index.html`)
-5. Click **Deploy**.
-6. Vercel will immediately read `vercel.json` and deploy the secure web application with configured Content Security Policies and headers.
-
-### Option B: Via Vercel CLI
-```bash
-npm i -g vercel
-cd TrustVault
-vercel
-```
-Follow the interactive prompts; select default project settings.
-
----
-
-## 2. Deploying to Netlify
+## 1. Deploying to Netlify
 
 ### Option A: Via Netlify Web Dashboard
 1. Go to [app.netlify.com](https://app.netlify.com).
@@ -49,7 +26,7 @@ netlify deploy --prod --dir=.
 
 ---
 
-## 3. Connecting to the Backend
+## 2. Connecting to the Backend
 
 The web application features an in-app **Endpoint Switcher** in the top navigation bar:
 - **Cloud (Render Live)**: Connects to `https://trustvault-kw7s.onrender.com`.
@@ -59,10 +36,10 @@ The web application features an in-app **Endpoint Switcher** in the top navigati
 
 ---
 
-## 4. Built-in Security Architecture
+## 3. Built-in Security Architecture
 
 The web application enforces strict defense-in-depth principles:
-1. **Content Security Policy (CSP)**: Pre-configured in `vercel.json`, `netlify.toml`, and `_headers` to restrict script execution, object embedding, and external network connections.
+1. **Content Security Policy (CSP)**: Pre-configured in `netlify.toml` to restrict script execution, object embedding, and external network connections.
 2. **Contextual Escaping**: All user-controlled text (titles, categories, usernames, audit logs) is sanitized to prevent DOM-based XSS.
 3. **Client-Side Signature Validation**: Inspects magic bytes (PDF, PNG, JPEG, UTF-8 text) and 5MB limits before transmitting data over the wire.
 4. **Sandboxed Previews**: Document previews for text, images, and PDFs run in isolated, sandboxed containers.
