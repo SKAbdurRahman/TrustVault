@@ -115,7 +115,7 @@
 
 **What was wrong:** `*` lets any website call the API from a browser. `https:` lets the page talk to any HTTPS site, which made the Render allow-list meaningless, so the guide overclaimed. It also left config files for Vercel, which I don't use.
 
-**What I did instead:** Restricted CORS to my Netlify URL and local dev, removed `https:` and `localhost:*` from `connect-src`, deleted the unused Vercel and duplicate header files, and added a test that an unknown origin gets no CORS header. Then I logged in from the live Netlify site to confirm it still worked. Commit: <paste the commit link after you push>
+**What I did instead:** Restricted CORS to my Netlify URL and local dev, removed `https:` and `localhost:*` from `connect-src`, deleted the unused Vercel and duplicate header files, and added a test that an unknown origin gets no CORS header. Then I logged in from the live Netlify site to confirm it still worked. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/0b55db6
 
 
 ## Entry 12: 7 Nov 2026: live database URL in the README
@@ -126,4 +126,4 @@
 
 **What was wrong:** The repo is public, so anyone could read and use the credentials for my database.
 
-**What I did instead:** Replaced the line with a placeholder, created a new database credential in Render, pointed `DATABASE_URL` at it, and confirmed the app worked on it (health check, login, and the old credential showing 0 open connections). Then I deleted the old credential and ran `git grep` for leftovers. Because the old password stays in git history, I rotated it instead of only deleting the line.
+**What I did instead:** Replaced the line with a placeholder, created a new database credential in Render, pointed `DATABASE_URL` at it, and confirmed the app worked on it (health check, login, and the old credential showing 0 open connections). Then I deleted the old credential and ran `git grep` for leftovers. Because the old password stays in git history, I rotated it instead of only deleting the line. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/2e22588
