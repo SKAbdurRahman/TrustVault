@@ -85,4 +85,12 @@
 **What I did instead:** Converted the value to naive UTC before comparing and storing it. I removed the fix to check the test fails without it, and it did. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/caad97b
 
 
+## Entry 9: 5 Nov 2026: huge IDs crashed Postgres but not SQLite
 
+**Asked:** AI to write document, grant and admin routes.
+
+**It produced:** Routes taking unbounded integer IDs.
+
+**What was wrong:** `GET /documents/99999999999999999999` returned 500 on the live Postgres, while the local SQLite tests passed. My first fix covered documents and grants but missed the admin routes, which I noticed from `git status` showing admin.py absent from the commit.
+
+**What I did instead:** Bounded IDs with `Path(ge=1, le=2147483647)` and bounded the admin filters. On the live site the calls now return 422. Commits: https://github.com/SKAbdurRahman/TrustVault/commit/a939a22 and https://github.com/SKAbdurRahman/TrustVault/commit/d096ff8
