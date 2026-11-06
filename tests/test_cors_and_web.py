@@ -39,3 +39,12 @@ def test_root_serves_html_when_index_exists():
     assert "text/html" in response.headers.get("content-type", "")
     assert "TrustVault" in response.text
     assert "Zero-Trust" in response.text
+
+
+def test_demo_passwords_in_index_html():
+    with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
+        content = f.read()
+    assert "Ur@owner7" in content
+    assert "Theyr@viewers2" in content
+    assert "Iam@admin2" in content
+    assert "OwnerPass123!" not in content

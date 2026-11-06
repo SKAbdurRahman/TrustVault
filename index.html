@@ -1143,15 +1143,15 @@
 
         <!-- Demo Accounts Helper -->
         <div class="demo-creds-card">
-          <div class="demo-creds-title">Demo Testing Credentials</div>
+          <div class="demo-creds-title">1-Click Demo Testing Credentials</div>
           <div class="demo-btns-grid">
-            <button class="demo-btn" type="button" onclick="TrustApp.fillDemo('demo_owner', 'OwnerPass123!')">
+            <button class="demo-btn" type="button" onclick="TrustApp.fillDemo('demo_owner', 'Ur@owner7')">
               <strong>demo_owner</strong><br>Owner
             </button>
-            <button class="demo-btn" type="button" onclick="TrustApp.fillDemo('demo_viewer', 'ViewerPass123!')">
+            <button class="demo-btn" type="button" onclick="TrustApp.fillDemo('demo_viewer', 'Theyr@viewers2')">
               <strong>demo_viewer</strong><br>Viewer
             </button>
-            <button class="demo-btn" type="button" onclick="TrustApp.fillDemo('demo_admin', 'AdminPass123!')">
+            <button class="demo-btn" type="button" onclick="TrustApp.fillDemo('demo_admin', 'Iam@admin2')">
               <strong>demo_admin</strong><br>Admin
             </button>
           </div>
@@ -1752,11 +1752,15 @@
         document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
       }
 
-      function fillDemo(user, pw) {
+      function fillDemo(user, pw, autoSubmit = true) {
         switchAuthTab('login');
         document.getElementById('loginUsername').value = user;
         document.getElementById('loginPassword').value = pw;
-        showToast(`Filled credentials for ${user}`, 'info');
+        showToast(`Authenticating demo ${user}...`, 'info', 2000);
+        if (autoSubmit) {
+          const form = document.getElementById('loginForm');
+          form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
       }
 
       async function handleLogin(e) {
