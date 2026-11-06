@@ -3,7 +3,7 @@
 A document platform where the wrong person can never read a file, and you can prove who read it.
 
 ## Live demo
-- Web Application: Deployable directly to **Vercel** and **Netlify** (see [DEPLOYMENT.md](DEPLOYMENT.md))
+- Web Application: Deployable directly to **Netlify** (see [DEPLOYMENT.md](DEPLOYMENT.md))
 - Backend API Docs: https://trustvault-kw7s.onrender.com/docs
 
 The free Render instance sleeps when idle, so the first load can take about a minute.
@@ -21,7 +21,7 @@ The database on Render's free plan expires on 4 Dec 2026.
 - A locked account unlocks after 15 minutes (5 failed logins per username or 20 per IP trigger it), so a mistyped demo password is not permanent.
 
 ## What it does
-- Modern, secure Web UI (`index.html`) deployable to Vercel and Netlify with zero build config
+- Modern, secure Web UI (`index.html`) deployable to Netlify with zero build config
 - Login with roles (admin, owner, viewer), sessions stored in the database
 - Upload, search, inline sandboxed preview, download, edit and delete documents
 - Pre-validation of file size (≤5MB) and cryptographic magic bytes (PDF, PNG, JPEG, UTF-8 text)
