@@ -117,3 +117,15 @@ def test_deactivation_deletes_session_rows(client):
     client.post(f"/admin/users/{bob_id}/deactivate", headers=admin)
     with SessionLocal() as db:
         assert db.query(LoginSession).filter_by(user_id=bob_id).count() == 0
+
+def test_admin_document_directory_shows_metadata_but_not_titles(client):
+    register(client, "alice")
+    a = login_headers(client, "alice")
+    doc_id = upload(client, a).json()["id"]
+    admin = make_admin(client)
+    r = client.get("/admin/documents", headers=admin)
+    assert r.status_code == 200
+    row = next(d for d in r.json() if d["id"] == doc_id)
+    assert row["owner_username"] == "alice"
+    assert "title" not in row and "original_name" not in row
+    assert client.get("/admin/documents", headers=a).status_code == 404

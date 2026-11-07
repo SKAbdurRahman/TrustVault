@@ -1254,9 +1254,10 @@
         </div>
 
         <!-- Admin Sub-tabs -->
-        <div class="auth-tabs" style="max-width: 400px; margin-bottom: 1.5rem;">
+        <div class="auth-tabs" style="max-width: 600px; margin-bottom: 1.5rem;">
           <button class="auth-tab-btn active" id="adminTabLogsBtn" onclick="TrustApp.switchAdminSubTab('logs')">Audit Logs</button>
           <button class="auth-tab-btn" id="adminTabUsersBtn" onclick="TrustApp.switchAdminSubTab('users')">User Directory</button>
+          <button class="auth-tab-btn" id="adminTabDocsBtn" onclick="TrustApp.switchAdminSubTab('docs')">Document Directory</button>
         </div>
 
         <!-- Sub-tab 1: Audit Logs -->
@@ -1333,6 +1334,28 @@
       </div>
     </section>
   </main>
+
+        <!-- Sub-tab 3: Document Directory -->
+        <div id="adminSubDocs" style="display: none;">
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Doc ID</th>
+                  <th>Owner</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th>Size</th>
+                  <th>Uploaded</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="adminDocTbody">
+                <tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 2rem;">Loading document directory...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
   <!-- MODAL 1: Document Upload -->
   <div id="uploadModal" class="modal-overlay">
@@ -1926,30 +1949,30 @@
         }
       }
 
-      function switchAdminSubTab(sub) {
-        const isLogs = sub === 'logs';
-        document.getElementById('adminTabLogsBtn').classList.toggle('active', isLogs);
-        document.getElementById('adminTabUsersBtn').classList.toggle('active', !isLogs);
-        document.getElementById('adminSubLogs').style.display = isLogs ? 'block' : 'none';
-        document.getElementById('adminSubUsers').style.display = isLogs ? 'none' : 'block';
-
-        if (isLogs) {
-          loadAuditLogs();
-        } else {
-          loadUsers();
+      function switchAdminSubTab(sub, highlightId) {
+        const tabs = {
+          logs: ['adminTabLogsBtn', 'adminSubLogs'],
+          users: ['adminTabUsersBtn', 'adminSubUsers'],
+          docs: ['adminTabDocsBtn', 'adminSubDocs']
+        };
+        for (const [key, [btn, panel]] of Object.entries(tabs)) {
+          document.getElementById(btn).classList.toggle('active', key === sub);
+          document.getElementById(panel).style.display = key === sub ? 'block' : 'none';
         }
+        if (sub === 'logs') loadAuditLogs();
+        else if (sub === 'users') loadUsers();
+        else loadAdminDocuments(highlightId);
       }
 
       function refreshCurrentView() {
         if (document.getElementById('subViewAdmin').style.display === 'block') {
           if (document.getElementById('adminSubLogs').style.display === 'block') {
             loadAuditLogs();
+          } else if (document.getElementById('adminSubDocs').style.display === 'block') {
+            loadAdminDocuments();
           } else {
             loadUsers();
           }
-        } else {
-          loadDocuments();
-        }
         showToast('Refreshed data.', 'info', 2000);
       }
 
@@ -2549,6 +2572,40 @@
         } catch (err) {
           tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--accent-crimson); padding:2rem;">${escapeHtml(err.message)}</td></tr>`;
         }
+      }
+
+      async function loadAdminDocuments(highlightId) {
+        const tbody = document.getElementById('adminDocTbody');
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:2rem;">Loading documents...</td></tr>';
+        try {
+          const res = await authFetch('/admin/documents');
+          if (!res.ok) throw new Error('Failed to load document directory');
+          const docs = await res.json();
+          if (docs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:2rem;">No documents yet.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = docs.map(d => `
+            <tr id="admin-doc-row-${d.id}" ${d.id === highlightId ? 'style="outline:2px solid var(--accent-cyan);"' : ''}>
+              <td style="font-family:var(--font-mono); color:var(--text-dim);">#${d.id}</td>
+              <td><strong>${escapeHtml(d.owner_username)}</strong> <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-dim);">#${d.owner_id}</span></td>
+              <td>${escapeHtml(d.category)}</td>
+              <td>${escapeHtml(formatType(d.content_type))}</td>
+              <td>${formatBytes(d.size)}</td>
+              <td>${formatDate(d.created_at)}</td>
+              <td><span class="badge ${d.status === 'active' ? 'badge-owner' : 'btn-danger'}">${escapeHtml(d.status.toUpperCase())}</span></td>
+            </tr>`).join('');
+          if (highlightId) {
+            const row = document.getElementById('admin-doc-row-' + highlightId);
+            if (row) row.scrollIntoView({ block: 'center' });
+          }
+        } catch (err) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--accent-crimson); padding:2rem;">${escapeHtml(err.message)}</td></tr>`;
+        }
+      }
+
+      function openDocInDirectory(docId) {
+        switchAdminSubTab('docs', docId);
       }
 
       async function toggleUserStatus(userId, activate) {

@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from app import audit
 from app.db import get_db
-from app.models import AuditLog, LoginSession, User
+from app.models import AuditLog, Document, LoginSession, User
 from app.security import get_current_user
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -62,6 +62,17 @@ def list_users(admin: User = Depends(require_admin), db: Session = Depends(get_d
     return [{"id": u.id, "username": u.username, "role": u.role, "is_active": u.is_active,
              "created_at": u.created_at.isoformat()}
             for u in db.query(User).order_by(User.id).all()]
+
+@router.get("/documents")
+def list_all_documents(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """Metadata only: no title, no file name, no contents. Admins still cannot read documents."""
+    rows = db.query(Document).order_by(Document.id).limit(1000).all()
+    out = [{"id": d.id, "owner_id": d.owner_id, "owner_username": d.owner.username,
+            "category": d.category, "content_type": d.content_type, "size": d.size,
+            "created_at": d.created_at.isoformat(),
+            "status": "deleted" if d.deleted_at else "active"} for d in rows]
+    audit.log(db, admin.id, "admin_view_documents", details=f"returned {len(out)} rows")
+    return out
 
 
 def _target(db: Session, user_id: int) -> User:
