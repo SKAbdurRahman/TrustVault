@@ -1552,6 +1552,13 @@
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
       }
+      function formatType(mime) {
+        const map = {
+          'image/jpeg': 'JPEG image', 'image/png': 'PNG image', 'image/gif': 'GIF image',
+          'application/pdf': 'PDF document', 'text/plain': 'Text file'
+        };
+        return map[mime] || mime || 'File';
+      }
 
       function formatDate(isoStr) {
         if (!isoStr) return 'Never';
@@ -2138,7 +2145,7 @@
             <div class="doc-card" id="doc-card-${doc.id}">
               <div>
                 <div class="doc-header">
-                  <div class="doc-title">${escapeHtml(doc.title)}</div>
+                  <div class="doc-title">${escapeHtml(doc.title)} <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-dim);">#${doc.id}</span></div>
                   <div class="doc-type-icon">${iconSvg}</div>
                 </div>
 
@@ -2186,7 +2193,7 @@
         if (!doc) return;
 
         document.getElementById('previewTitle').textContent = doc.title;
-        document.getElementById('previewMeta').textContent = `${doc.original_name} &bull; ${doc.content_type} &bull; ${formatBytes(doc.size)}`;
+        document.getElementById('previewMeta').textContent = `${formatType(doc.content_type)} \u2022 ${formatBytes(doc.size)}`;
         
         const container = document.getElementById('previewContainer');
         container.innerHTML = '<div style="color: var(--text-dim);">Downloading document into secure memory buffer...</div>';
