@@ -1,6 +1,6 @@
 # TrustVault
 
-A document platform where the wrong person can never read a file, and you can prove who read it.
+A document platform where the wrong person can never read a file, and you can choose who read it.
 
 ## Live demo
 - Web Application: Deployable directly to **Netlify** (see [DEPLOYMENT.md](DEPLOYMENT.md))
