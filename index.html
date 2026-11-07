@@ -1556,11 +1556,15 @@
       function formatDate(isoStr) {
         if (!isoStr) return 'Never';
         try {
-          const d = new Date(isoStr);
-          return d.toLocaleDateString(undefined, {
+          // The server sends UTC without a timezone marker; add Z so the browser knows
+          const hasZone = /(Z|[+-]\d{2}:?\d{2})$/.test(isoStr);
+          const d = new Date(hasZone ? isoStr : isoStr + 'Z');
+          if (isNaN(d.getTime())) return escapeHtml(isoStr);
+          return d.toLocaleString('en-IN', {
+            timeZone: 'Asia/Kolkata',
             year: 'numeric', month: 'short', day: 'numeric',
             hour: '2-digit', minute: '2-digit'
-          });
+          }) + ' IST';
         } catch {
           return escapeHtml(isoStr);
         }
@@ -2141,7 +2145,7 @@
                 <div class="doc-meta">
                   <span class="badge badge-category">${escapeHtml(doc.category)}</span>
                   <span class="badge ${isOwner ? 'badge-owner' : 'badge-shared'}">
-                    ${isOwner ? 'Owned by you' : 'Shared grant'}
+                    ${isOwner ? 'Owned by you' : 'Shared by ' + escapeHtml(doc.owner_username || 'unknown')}
                   </span>
                   <span>${formatBytes(doc.size)}</span>
                   <span>&bull;</span>

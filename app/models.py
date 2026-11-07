@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import String, ForeignKey, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column , relationship
 from app.db import Base
 
 
@@ -41,6 +41,7 @@ class Document(Base):
     size: Mapped[int]
     created_at: Mapped[datetime] = mapped_column(default=now)
     deleted_at: Mapped[Optional[datetime]] = mapped_column(default=None)
+    owner: Mapped["User"] = relationship(lazy="joined")
 
 
 class Grant(Base):

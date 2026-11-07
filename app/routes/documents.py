@@ -38,6 +38,7 @@ def _safe_display_name(name: str) -> str:
 
 def _doc_out(d: Document) -> dict:
     return {"id": d.id, "title": d.title, "category": d.category, "owner_id": d.owner_id,
+            "owner_username": d.owner.username,
             "original_name": d.original_name, "content_type": d.content_type,
             "size": d.size, "created_at": d.created_at.isoformat()}
 
