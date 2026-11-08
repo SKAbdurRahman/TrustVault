@@ -1,7 +1,7 @@
 # TrustVault write-up
 
 ## 1. What I built
-TrustVault is a document platform where only the right person can open a file, and every access is recorded. It is written in Python with FastAPI. The web page is one HTML file hosted on Netlify, talking to the API on Render. It uses SQLite on my laptop and Postgres on Render. The web page is live at https://frabjous-puppy-0abe47.netlify.app, the API docs are at https://trustvault-kw7s.onrender.com/docs, and the demo logins are in the README.
+TrustVault is a document platform where only the right person can open a file, and every access is recorded. It is written in Python with FastAPI. The web page is one HTML file hosted on Netlify, talking to the API on Render. It uses SQLite on my laptop and Postgres on Render. The web page is live at https://trustvault-kw7s.onrender.com, the API docs are at https://trustvault-kw7s.onrender.com/docs, and the demo logins are in the README.
 
 There are three kinds of users:
 - **Admin**: manages users (deactivate, activate, change role) and reads the audit log. An admin cannot open other people's documents.
