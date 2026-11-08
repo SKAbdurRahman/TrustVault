@@ -2,7 +2,7 @@
 
 TrustVault includes a zero-dependency, advanced, secure single-page web application (`index.html`) engineered for 1-click deployment on static & JAMstack hosting platforms such as  **Netlify**.
 
-**Live site:** [https://frabjous-puppy-0abe47.netlify.app](https://frabjous-puppy-0abe47.netlify.app/)
+**Live site:** https://trustvault-kw7s.onrender.com
 
 
 ## 1. Deploying to Netlify
