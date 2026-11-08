@@ -124,6 +124,39 @@
 
 **It produced:** A README line telling readers to set `VERIFY_DB_URL`, followed by a full connection string with the username and password.
 
+
+## Entry 13: 7 Nov 2026: shared documents showed no sender, and times were 5.5 hours off
+
+**Asked:** AI to build the web page for the vault.
+
+**It produced:** A document list that said only "Shared grant" for received documents, and a date formatter that handed the server's UTC times to the browser as if they were local.
+
+**What was wrong:** A receiver could not see who shared a document. The server sends times with no timezone marker, so the browser read UTC as local time and every date was 5 hours 30 minutes behind India time. I found both by using the live site with several accounts.
+
+**What I did instead:** Added the owner's username to the document output and a "Shared by" label. Changed the date formatter to treat the server times as UTC and show India time. I left the stored time format alone, because the audit hash includes each timestamp.
+
+
+## Entry 14: 7 Nov 2026: preview showed the sender's file name, and audit IDs led nowhere
+
+**Asked:** AI to build the document preview and the admin audit screen.
+
+**It produced:** A preview subtitle that showed the original laptop file name and printed the raw text `&bull;`, and an audit log that listed "Doc #11" with no way to look it up.
+
+**What was wrong:** The file name can contain private details and was never meant to be shown to a receiver. The audit IDs gave an admin nothing to investigate. I noticed because the user directory worked for Actor numbers and nothing matched for documents.
+
+**What I did instead:** Showed the title, type and size in the preview, and built an admin Document Directory that shows metadata but not titles or contents, so admins still cannot read documents. I made the document IDs in the audit log link to it and added a test.
+
+
+## Entry 15: 7 Nov 2026: my own edit crashed the whole page
+
+**Asked:** AI for the code to add the directory to the admin screen.
+
+**It produced:** Changes to several places in `index.html`, including a replacement for the end of `refreshCurrentView`.
+
+**What was wrong:** I pasted a replacement over too much of that function and removed its closing lines, and I pasted the new HTML panel outside the admin section. The script then failed with a SyntaxError, so the page never ran: the status stayed on "Connecting..." even though `/health` was fine.
+
+**What I did instead:** Ran the page script through a Node syntax check, found the broken function and the misplaced panel, fixed both, and re-checked before pushing. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/bcb4e98
+
 **What was wrong:** The repo is public, so anyone could read and use the credentials for my database.
 
 **What I did instead:** Replaced the line with a placeholder, created a new database credential in Render, pointed `DATABASE_URL` at it, and confirmed the app worked on it (health check, login, and the old credential showing 0 open connections). Then I deleted the old credential and ran `git grep` for leftovers. Because the old password stays in git history, I rotated it instead of only deleting the line. Commit: https://github.com/SKAbdurRahman/TrustVault/commit/2e22588
