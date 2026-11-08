@@ -95,4 +95,4 @@ Where someone is refused, the answer is **404** (same as a missing item), so exi
 | Endpoint | Who |
 |---|---|
 | `GET /health` | Anyone |
-| `GET /` | Anyone (redirects to `/docs`) |
+| `GET /` | Anyone (serves the web page) |
