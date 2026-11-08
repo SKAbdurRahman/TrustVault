@@ -3,7 +3,7 @@
 A document platform where only the people you choose can read a file, and you can prove who did.
 
 ## Live demo
-- Web Application: https://frabjous-puppy-0abe47.netlify.app
+- Web Application: https://trustvault-kw7s.onrender.com (the backend serves the page itself)
 - Backend API Docs: https://trustvault-kw7s.onrender.com/docs
 
 The free Render instance sleeps when idle, so the first load can take about a minute.
@@ -16,7 +16,7 @@ The database on Render's free plan expires on 4 Dec 2026.
 | Owner | demo_owner | Ur@owner7 |
 | Viewer | demo_viewer | Theyr@viewers2 |
 
-- How to log in via Web UI: Open `index.html` (or run locally and visit `http://127.0.0.1:8000/`), choose your endpoint, and click any demo button to log in instantly.
+- How to log in via the web page: open https://trustvault-kw7s.onrender.com (or run locally and visit `http://127.0.0.1:8000/`) and click any demo button to log in instantly.
 - How to log in via Swagger `/docs`: Open `/docs`, call `POST /auth/login`, copy the `access_token`, click **Authorize**, paste it.
 - A locked account unlocks after 15 minutes (5 failed logins per username or 20 per IP trigger it), so a mistyped demo password is not permanent.
 
