@@ -32,7 +32,6 @@ The web application features an in-app **Endpoint Switcher** in the top navigati
 - **Cloud (Render Live)**: Connects to `https://trustvault-kw7s.onrender.com`.
   > *Note: Render's free tier spins down on idle. When connecting after idle, the status indicator will show "Waking up..." with a friendly prompt. The enclave boots in ~45 seconds.*
 - **Local (127.0.0.1:8000)**: Connects to your local FastAPI backend instance when running `uvicorn app.main:app --reload`.
-- **Custom URL**: Connect to your self-hosted instance or custom domain.
 
 ---
 
