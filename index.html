@@ -1237,7 +1237,7 @@
               <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem;">Cryptographic Audit Trail Chain</h2>
               <p style="color: var(--text-muted); font-size: 0.875rem;">
                 Each audit entry stores <code style="color: var(--accent-cyan); font-family: var(--font-mono);">SHA-256(previous_hash || entry_data)</code>. 
-                PostgreSQL triggers reject direct UPDATE, DELETE, and TRUNCATE.
+                On PostgreSQL, triggers also reject direct UPDATE, DELETE, and TRUNCATE.
               </p>
             </div>
             <button class="btn btn-primary" onclick="TrustApp.verifyAuditChain()" id="verifyChainBtn">
@@ -2461,10 +2461,10 @@
           if (data.intact) {
             box.innerHTML = `
               <div class="chain-status-badge intact">
-                ✅ Cryptographic Hash Chain is 100% INTACT & Untampered.
+                ✅ Hash chain verified: every entry links correctly to the one before it.
               </div>
               <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">
-                All sequential rows match their SHA-256 parent link. Database immutability triggers are verified.
+                Every row's SHA-256 matches its content and its parent link. No entry was changed after it was written.
               </p>`;
             showToast('Audit trail verified: Cryptographic chain is intact!', 'success');
           } else {
