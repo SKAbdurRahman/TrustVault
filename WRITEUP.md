@@ -1,7 +1,7 @@
 # TrustVault write-up
 
 ## 1. What I built
-TrustVault is a document platform where only the right person can open a file, and every access is recorded. It is written in Python with FastAPI. It uses SQLite on my laptop and Postgres on Render. It is live at https://trustvault-kw7s.onrender.com/docs and the demo logins are in the README.
+TrustVault is a document platform where only the right person can open a file, and every access is recorded. It is written in Python with FastAPI.The web page is one HTML file hosted on Netlify, talking to the API on Render. It uses SQLite on my laptop and Postgres on Render. It is live at https://trustvault-kw7s.onrender.com and the demo logins are in the README.
 
 There are three kinds of users:
 - **Admin**: manages users (deactivate, activate, change role) and reads the audit log. An admin cannot open other people's documents.
@@ -37,7 +37,7 @@ Files are saved with a random name in a storage folder that is not public. The u
 - Versions and restoring deleted documents: delete is a soft delete, but there is no restore screen.
 - Sharing outside the company: it adds many risks and was not in the must-do list.
 - Persistent storage: Render's free disk is wiped on a redeploy.
-- A normal website with screens: I built the API and used the `/docs` page.
+- A fully polished website: the web page is a single static file with no build step, so it is plain and has no automated browser tests.
 - Self-service admin creation: admins come from the seed script or a role change by another admin.
 
 ## 7. How I used AI, and where it was wrong
@@ -49,6 +49,8 @@ I used Claude to build this. I did not just accept what it gave me. After each p
 - A date with a timezone (`...Z`) crashed the grant route.
 - A huge document ID gave a 500 on Postgres but not on SQLite, so my tests missed it.
 - The AI's deploy instructions used the wrong Postgres driver, and the first deploy crashed.
+- The web page shipped with open CORS, a CSP that allowed any HTTPS site, and no sender name on shared documents; times showed UTC as India time.
+- A live database password was committed to the public README; I rotated it.
 
 ## 8. What is unfinished or weak
 Everything is in THREATS.md. The main open points:
