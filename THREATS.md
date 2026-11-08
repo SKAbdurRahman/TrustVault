@@ -152,6 +152,31 @@ Owner saw both demo documents. Viewer saw only the shared one; downloading it re
 **What I did:** Added a 30-second lock timeout and a 10-second connection timeout, so a repeat fails fast with a clear error.
 **Status:** Mitigated, cause not proven.
 
+## T24: Anyone could call the API from a browser (open CORS)
+**Risk:** The API allowed every origin together with credentials, so any website could make requests to it from a visitor's browser.
+**What I did:** Limited allowed origins to the Netlify site and local development, and added tests that the real origin is accepted and an unknown origin (`https://evil.example`) gets no CORS header.
+**Status:** Fixed.
+
+## T25: The page's Content-Security-Policy allowed any HTTPS site
+**Risk:** `connect-src` ended with `https:`, so injected script could send data to any HTTPS address, and the allow-list of my own backend meant nothing.
+**What I did:** Removed `https:` and `localhost:*` from `connect-src` in both `netlify.toml` and `index.html`, leaving only my backend and local development.
+**Status:** Mostly fixed. Inline script and styles are still allowed (see "Still to cover").
+
+## T26: Database password committed to a public repo
+**Risk:** A README line contained a full database connection string with the password, in a public repository, so anyone could connect to the database.
+**What I did:** Created a new database credential, pointed the app at it, confirmed the app worked and the old credential had no open connections, then deleted the old credential. I also removed the line and searched the repo for leftovers.
+**Status:** Fixed. The old password is still in git history, but it no longer works.
+
+## T27: Receivers could not tell who shared a document, and the preview showed the sender's file name
+**Risk:** A shared document gave no sender, so a received document could not be tied to anyone. The preview also showed the sender's laptop file name, which can contain private information.
+**What I did:** The list now returns the owner's username and the card says "Shared by <name>". The preview shows the title, file type and size instead of the original file name.
+**Status:** Partly open. Downloads still use the original file name, and the API still returns it to the receiver.
+
+## T28: Audit log IDs could not be traced to documents
+**Risk:** The audit log listed "Doc #11", but nothing in the site showed what that was, so an admin could not investigate an entry.
+**What I did:** Added an admin-only Document Directory (owner, category, type, size, time, active or deleted) and made document IDs in the audit log link to it. It deliberately omits titles and file names, and admins still cannot read document contents without a grant.
+**Status:** Fixed. A test checks that non-admins get a 404 and that titles are not returned.
+
 ## Still to cover (known gaps)
 - Admin account creation is only through the seed script and the promote-role route; there is no self-service path
 - Uploaded text files shown in the browser (HTML or script in a .txt); downloads are forced as attachments with `nosniff`, but plain text accepts any UTF-8 content
@@ -164,3 +189,5 @@ Owner saw both demo documents. Viewer saw only the shared one; downloading it re
 - The demo accounts and their passwords are visible in `index.html` on purpose, so the demo can log in with one click; they are not real accounts and hold no real data
 - CORS allows only the Netlify site and local development, so deploying the front end at another address needs a code change in `app/main.py`
 - The free-tier backend sleeps when idle, so the first request after a pause takes about 45 seconds
+- Times are stored in UTC and shown in India time (IST) in the browser, so a viewer in another timezone sees IST
+- The audit hash chain has no secret key and no copy kept outside the database, so someone who could rewrite the whole table could rebuild it (see T6 and T18)
