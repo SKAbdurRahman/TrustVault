@@ -1100,8 +1100,8 @@
     <section id="authView" class="view-section active">
       <div class="auth-container">
         <div class="auth-header">
-          <h1>Secure Enclave Access</h1>
-          <p>Verify identity to access cryptographically protected documents</p>
+          <h1>Welcome to TrustVault</h1>
+          <p>Sign in or register to access your documents</p>
         </div>
 
         <div class="auth-tabs">
@@ -1529,7 +1529,7 @@
   <footer>
     <div style="max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
       <div>
-        TrustVault Platform &bull; Zero-Knowledge Existence &bull; Hash-Chained Audit Trail
+        TrustVault Platform &bull; Hidden Existence &bull; Hash-Chained Audit Trail
       </div>
       <div>
         Deployed on <a href="https://www.netlify.com" target="_blank" rel="noopener">Netlify</a>
@@ -2223,7 +2223,7 @@
         document.getElementById('previewMeta').textContent = `${formatType(doc.content_type)} \u2022 ${formatBytes(doc.size)}`;
         
         const container = document.getElementById('previewContainer');
-        container.innerHTML = '<div style="color: var(--text-dim);">Downloading document into secure memory buffer...</div>';
+        container.innerHTML = '<div style="color: var(--text-dim);">Loading preview...</div>';
         
         openModal('previewModal');
 
