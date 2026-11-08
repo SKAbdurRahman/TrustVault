@@ -13,7 +13,7 @@ TrustVault includes a zero-dependency, advanced, secure single-page web applicat
 3. Select your Git provider and choose the **TrustVault** repository.
 4. Build settings are automatically detected from `netlify.toml`:
    - **Base directory**: (empty)
-   - **Build command**: (empty)
+   - **Build command**: none needed (`netlify.toml` runs a no-op `echo`)
    - **Publish directory**: `.`
 5. Click **Deploy TrustVault**.
 
@@ -38,7 +38,7 @@ The web application features an in-app **Endpoint Switcher** in the top navigati
 ## 3. Built-in Security Architecture
 
 The web application enforces strict defense-in-depth principles:
-1. **Content Security Policy (CSP)**: Pre-configured in `netlify.toml` to restrict script execution, object embedding, and external network connections.
+1. **Content Security Policy (CSP)**: Pre-configured in `netlify.toml` and in `index.html` to limit where the page can connect (only the backend and local development) and to block embedded objects. It still allows inline script and styles, so it does not stop injected inline script (see THREATS.md).
 2. **Contextual Escaping**: All user-controlled text (titles, categories, usernames, audit logs) is sanitized to prevent DOM-based XSS.
 3. **Client-Side Signature Validation**: Inspects magic bytes (PDF, PNG, JPEG, UTF-8 text) and 5MB limits before transmitting data over the wire.
 4. **Sandboxed Previews**: Document previews for text, images, and PDFs run in isolated, sandboxed containers.
