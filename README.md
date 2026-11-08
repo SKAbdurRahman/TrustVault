@@ -3,7 +3,7 @@
 A document platform where the wrong person can never read a file, and you can choose who read it.
 
 ## Live demo
-- Web Application: Deployable directly to **Netlify** (see [DEPLOYMENT.md](DEPLOYMENT.md))
+- Web Application: https://frabjous-puppy-0abe47.netlify.app
 - Backend API Docs: https://trustvault-kw7s.onrender.com/docs
 
 The free Render instance sleeps when idle, so the first load can take about a minute.
@@ -86,6 +86,7 @@ Where someone is refused, the answer is **404** (same as a missing item), so exi
 | `GET /admin/activity` | Read the audit log, filter by user, action, document, result |
 | `GET /admin/audit/verify` | Check the audit hash chain |
 | `GET /admin/users` | List users |
+| `GET /admin/documents` | List every document's owner, type, size, time and status (no titles or contents) |
 | `POST /admin/users/{id}/deactivate` | Deactivate a user and end their sessions (not yourself) |
 | `POST /admin/users/{id}/activate` | Reactivate a user |
 | `PATCH /admin/users/{id}/role` | Change a user's role (not your own) |
