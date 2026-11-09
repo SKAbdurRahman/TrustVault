@@ -6,6 +6,9 @@ A document platform where only the people you choose can read a file, and you ca
 - Web Application: https://trustvault-kw7s.onrender.com (the backend serves the page itself)
 - Backend API Docs: https://trustvault-kw7s.onrender.com/docs
 
+## Video link
+- https://drive.google.com/file/d/1RGkZZ6RPoQq-ai3z3K2lW4Qz7JwhoAwM/view?usp=drivesdk
+
 The free Render instance sleeps when idle, so the first load can take about a minute.
 The database on Render's free plan expires on 4 Dec 2026.
 
